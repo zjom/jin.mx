@@ -1,0 +1,36 @@
+@layer reset, base;
+
+@import url("reset.css") layer(reset);
+
+/* jin.mx */
+
+:root {
+  --bg: #141415;
+  --fg: #cdcdcd;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--fg);
+}
+
+#ca {
+  position: fixed;
+  inset: 0; /* top/right/bottom/left: 0 */
+  width: 100vw;
+  height: 100vh;
+  z-index: -1; /* sits behind everything */
+  pointer-events: none;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100vh;
+  align-items: center;
+}
+
+main > h1 {
+  font-size: 6rem;
+}
