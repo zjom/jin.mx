@@ -47,4 +47,35 @@ main {
   cursor: pointer;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
+  --ink: 1;
+  --scale: 1;
+  display: grid;
+  place-items: center;
+}
+
+#landing-title .glyph {
+  display: inline-block;
+  color: rgb(205 205 205 / var(--ink));
+  transform: scale(var(--scale));
+  transition:
+    color 1.4s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 1.4s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 1.4s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 1.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* The collapse accelerates inward; the singularity itself is drawn on the
+   canvas, at the centre of the orbits */
+#landing-title.is-singular .glyph {
+  opacity: 0;
+  transform: scale(0);
+  filter: blur(0.03em);
+  transition-duration: 1.8s;
+  transition-timing-function: cubic-bezier(0.7, 0, 0.84, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #landing-title .glyph {
+    transition-duration: 0.01s !important;
+  }
 }
