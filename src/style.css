@@ -44,4 +44,7 @@ main {
   font-family: "Long Cang", cursive;
   font-weight: 400;
   font-style: normal;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
