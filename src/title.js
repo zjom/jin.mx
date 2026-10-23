@@ -2,7 +2,7 @@
 
 // Each press fades and shrinks 金 a little; the SINGULAR_AT-th collapses it
 // into a singularity that takes over the orbits' centre
-const SINGULAR_AT = 50;
+const SINGULAR_AT = 75;
 const MIN_INK = 0.4;
 const MIN_SCALE = 0.3;
 
