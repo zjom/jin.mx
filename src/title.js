@@ -44,6 +44,13 @@ export const initTitle = (win, title, onSingular) => {
       title.getAnimations().forEach((a) => a.cancel());
       title.animate(PRESS_KEYFRAMES, PRESS_TIMING);
     },
-    reset: () => setPresses(0),
+    // Snap straight back to full ink rather than transitioning in
+    reset: () => {
+      title.getAnimations({ subtree: true }).forEach((a) => a.cancel());
+      title.classList.add("is-resetting");
+      setPresses(0);
+      void title.offsetWidth;
+      title.classList.remove("is-resetting");
+    },
   };
 };

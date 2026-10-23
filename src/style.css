@@ -72,6 +72,10 @@ main {
   transition-timing-function: cubic-bezier(0.7, 0, 0.84, 0);
 }
 
+#landing-title.is-resetting .glyph {
+  transition: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   #landing-title .glyph {
     transition-duration: 0.01s !important;
