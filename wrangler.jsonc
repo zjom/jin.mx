@@ -3,10 +3,10 @@
   "name": "jin-mx",
   "compatibility_date": "2026-10-19",
   "observability": {
-    "enabled": true
+    "enabled": true,
   },
   "assets": {
-    "not_found_handling": "single-page-application"
+    "not_found_handling": "single-page-application",
   },
-  "preview_urls": false
+  "preview_urls": false,
 }
