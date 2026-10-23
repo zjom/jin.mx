@@ -17,8 +17,8 @@ body {
 #ca {
   position: fixed;
   inset: 0; /* top/right/bottom/left: 0 */
-  width: 100vw;
-  height: 100vh;
+  width: 100%; /* canvas won't stretch to inset; it'd use its dpr-scaled buffer size */
+  height: 100%;
   z-index: -1; /* sits behind everything */
   pointer-events: none;
 }
@@ -27,10 +27,10 @@ main {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  height: 100vh;
+  height: 100dvh; /* visible viewport, matches innerHeight on mobile */
   align-items: center;
 }
 
-main > h1 {
-  font-size: 6rem;
+#landing-title {
+  font-size: 18dvmin; /* same unit as the orbit radius (0.3 * min(W, H)) */
 }

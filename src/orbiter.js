@@ -17,7 +17,7 @@
 
 /** @type {Planet} */
 const PLANET = { speed: 0.9, size: 3, trailLen: 90 };
-const INK = "#ededed";
+const INK = "#cdcdcd";
 const MAX_DT = 0.05;
 
 // Viewport geometry derived from the window
