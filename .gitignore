@@ -177,3 +177,8 @@ vite.config.ts.timestamp-*
 
 .direnv
 .envrc
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
