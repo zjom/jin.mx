@@ -21,7 +21,6 @@ title?.addEventListener("click", () => {
     [
       { transform: "scale(1)", opacity: 1, textShadow: "0 0 0 rgb(205 205 205 / 0)" },
       {
-        transform: "scale(0.97)",
         opacity: 0.7,
         textShadow: "0 0 0 rgb(205 205 205 / 0)",
         offset: 0.15,
