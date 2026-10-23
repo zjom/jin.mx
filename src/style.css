@@ -1,8 +1,16 @@
 @layer reset, base;
-
 @import url("reset.css") layer(reset);
 
 /* jin.mx */
+
+/* Long Cang, subset to 金. (c) 2018 The Long Cang Project Authors, SIL OFL 1.1: /fonts/OFL.txt */
+@font-face {
+  font-family: "Long Cang";
+  src: url("./fonts/LongCang-jin.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
 
 :root {
   --bg: #141415;
@@ -16,10 +24,10 @@ body {
 
 #ca {
   position: fixed;
-  inset: 0; /* top/right/bottom/left: 0 */
-  width: 100%; /* canvas won't stretch to inset; it'd use its dpr-scaled buffer size */
+  inset: 0;
+  width: 100%;
   height: 100%;
-  z-index: -1; /* sits behind everything */
+  z-index: -1;
   pointer-events: none;
 }
 
@@ -27,10 +35,13 @@ main {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  height: 100dvh; /* visible viewport, matches innerHeight on mobile */
+  height: 100dvh;
   align-items: center;
 }
 
 #landing-title {
-  font-size: 18dvmin; /* same unit as the orbit radius (0.3 * min(W, H)) */
+  font-size: 24dvmin;
+  font-family: "Long Cang", cursive;
+  font-weight: 400;
+  font-style: normal;
 }
