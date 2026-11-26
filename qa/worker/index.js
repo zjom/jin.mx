@@ -5,11 +5,13 @@ import { words } from "../shared/words.js";
 import { identify } from "./access.js";
 import { admin } from "./admin.js";
 import { CURRENT, fail, json, parse } from "./http.js";
+import { notify } from "./notify.js";
 
 /**
  * @typedef {import("../shared/schema.js").Definition} Definition
  * @typedef {{ limit: (o: { key: string }) => Promise<{ success: boolean }> }} Limiter
- * @typedef {{ DB: any, FILES: any, ASSETS: { fetch: (r: Request) => Promise<Response> }, SUBMIT_LIMIT?: Limiter, UPLOAD_LIMIT?: Limiter } & import("./access.js").AccessEnv} Env
+ * @typedef {{ DB: any, FILES: any, ASSETS: { fetch: (r: Request) => Promise<Response> }, SUBMIT_LIMIT?: Limiter, UPLOAD_LIMIT?: Limiter } & import("./access.js").AccessEnv & import("./notify.js").NotifyEnv} Env
+ * @typedef {{ waitUntil: (p: Promise<unknown>) => void }} Ctx
  */
 
 const MAX_BODY = 64 * 1024;
@@ -107,9 +109,9 @@ const missingFile = async (env, definition, answers, scope, lang) => {
 
 /**
  * A general questionnaire: read it, or submit it
- * @param {Request} request @param {Env} env @param {string} slug @param {string[]} rest
+ * @param {Request} request @param {Env} env @param {Ctx} ctx @param {string} slug @param {string[]} rest
  */
-const general = async (request, env, slug, rest) => {
+const general = async (request, env, ctx, slug, rest) => {
   const found = await env.DB.prepare(
     `SELECT q.revision, r.definition ${CURRENT} WHERE q.slug = ? AND q.archived_at IS NULL`,
   )
@@ -133,26 +135,23 @@ const general = async (request, env, slug, rest) => {
     (await missingFile(env, definition, resolve(definition, sent).answers, scope, lang));
   if (problem) return json({ ok: false, problem }, 422);
 
+  const id = crypto.randomUUID();
+  const answers = resolve(definition, sent).answers;
   await env.DB.prepare(
     "INSERT INTO responses (id, questionnaire, answers, lang, revision, submitted_at) VALUES (?, ?, ?, ?, ?, ?)",
   )
-    .bind(
-      crypto.randomUUID(),
-      slug,
-      JSON.stringify(resolve(definition, sent).answers),
-      lang,
-      found.revision,
-      new Date().toISOString(),
-    )
+    .bind(id, slug, JSON.stringify(answers), lang, found.revision, new Date().toISOString())
     .run();
+  const { origin } = new URL(request.url);
+  ctx.waitUntil(notify(env, { slug, definition, answers, lang, origin, path: `response/${id}` }));
   return json({ ok: true });
 };
 
 /**
  * A customer's link: read it with their progress, save progress, or submit
- * @param {Request} request @param {Env} env @param {string} token @param {string[]} rest
+ * @param {Request} request @param {Env} env @param {Ctx} ctx @param {string} token @param {string[]} rest
  */
-const invite = async (request, env, token, rest) => {
+const invite = async (request, env, ctx, token, rest) => {
   if (!TOKEN.test(token)) return fail(404, "not found");
   // A link that was revoked, or whose questionnaire was archived, is not found
   const row = await env.DB.prepare(
@@ -214,17 +213,33 @@ const invite = async (request, env, token, rest) => {
     firstProblem(definition, sent, said) ??
     (await missingFile(env, definition, resolve(definition, sent).answers, scope, said));
   if (problem) return json({ ok: false, problem }, 422);
-  await env.DB.prepare(
+  const answers = resolve(definition, sent).answers;
+  const done = await env.DB.prepare(
     "UPDATE invites SET answers = ?, position = NULL, lang = ?, revision = ?, updated_at = ?, submitted_at = ? WHERE token = ? AND submitted_at IS NULL",
   )
-    .bind(JSON.stringify(resolve(definition, sent).answers), said, row.revision, now, now, token)
+    .bind(JSON.stringify(answers), said, row.revision, now, now, token)
     .run();
+  // Sent twice at once, only the one that was saved is told
+  if (done.meta.changes) {
+    ctx.waitUntil(
+      notify(env, {
+        slug: row.questionnaire,
+        definition,
+        answers,
+        lang: said,
+        origin: new URL(request.url).origin,
+        path: `invite/${token}`,
+        customer: row.customer,
+        vars: parse(row.vars),
+      }),
+    );
+  }
   return json({ ok: true });
 };
 
 export default {
-  /** @param {Request} request @param {Env} env */
-  async fetch(request, env) {
+  /** @param {Request} request @param {Env} env @param {Ctx} ctx */
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const [, api, kind, id, ...rest] = url.pathname.split("/");
     try {
@@ -239,8 +254,8 @@ export default {
       // /api/<kind>/<id>, or /api/<kind>/<id>/files/<question> to add a file
       const shaped = rest.length === 0 || (rest.length === 2 && rest[0] === "files");
       if (api !== "api" || !id || !shaped) return fail(404, "not found");
-      if (kind === "q") return await general(request, env, id, rest);
-      if (kind === "i") return await invite(request, env, id, rest);
+      if (kind === "q") return await general(request, env, ctx, id, rest);
+      if (kind === "i") return await invite(request, env, ctx, id, rest);
     } catch (e) {
       console.error(e);
       return fail(500, "something went wrong");

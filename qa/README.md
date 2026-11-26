@@ -166,6 +166,18 @@ pnpm exec wrangler d1 execute qa --remote --json \
 it was sent in and the `revision` it answered. Progress on customer
 links that have not been sent yet is in `invites`.
 
+Each time a questionnaire is sent, the worker emails the answers through
+[Resend](https://resend.com), with a link to them in `/admin`. It needs two
+secrets, and sends nothing without them:
+
+```sh
+pnpm exec wrangler secret put RESEND_API_KEY
+pnpm exec wrangler secret put NOTIFY_TO      # one address, or several with commas
+```
+
+The email comes from `qa@notify.jin.mx`; `NOTIFY_FROM` changes that. For
+`pnpm dev`, put the same names in `.dev.vars`.
+
 A `file` answer lists each file's `name`, `size` and `key`. The files
 themselves are in the private R2 bucket `qa-uploads`. `/admin` links to each
 one; from here, fetch one by its key:
