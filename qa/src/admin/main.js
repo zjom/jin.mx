@@ -3,7 +3,6 @@
 // /admin: the questionnaires, their links, and what has been answered. One
 // page; where it is inside itself is kept after the # so that back works
 
-import "@fontsource/instrument-serif/latin-400.css";
 import "@fontsource-variable/geist/wght.css";
 import "../style.css";
 import "./admin.css";

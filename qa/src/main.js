@@ -1,6 +1,5 @@
 // @ts-check
 
-import "@fontsource/instrument-serif/latin-400.css";
 import "@fontsource-variable/geist/wght.css";
 import "./style.css";
 
