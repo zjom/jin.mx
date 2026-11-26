@@ -2,7 +2,8 @@
 
 // The deck: one question per card, moved between by swiping. A swipe left
 // throws the card away and the next rises from beneath; a swipe right pulls
-// the previous card back from where it went. A swipe that cannot be honoured
+// the previous card back from where it went. The buttons at the foot do the
+// same for anyone who would rather press. A swipe that cannot be honoured
 // (a required question unanswered, nothing before the first card) still
 // follows the finger, against growing resistance, then springs back
 
@@ -28,6 +29,8 @@ const TILT = 7; // degrees, at full travel
 const GIVE = 96; // px a refused card can be pulled
 const EASE_OUT = "cubic-bezier(0.22, 1, 0.36, 1)";
 const SPRING = "cubic-bezier(0.3, 1.7, 0.45, 1)";
+const HINTED_MOVES = 3; // forward moves by button before the swipe hint gives up
+const PEEK_AT = [2200, 7500]; // ms the first card waits before showing it can move
 const TYPING = "input:not([type=radio], [type=checkbox], [type=range]), textarea, select";
 
 /** @param {number} n */
@@ -60,7 +63,15 @@ export const mountDeck = ({ stage, bar, foot }, session) => {
   let busy = false;
   let done = false;
   let online = true;
-  let hinted = false;
+  // What the reader has shown they know, which decides what the hint says
+  let advances = 0;
+  let swiped = false;
+  let wentBack = false;
+  let backHintAt = "";
+
+  const hint = /** @type {HTMLElement} */ (foot.querySelector(".hint"));
+  const backButton = /** @type {HTMLButtonElement} */ (foot.querySelector(".back"));
+  const nextButton = /** @type {HTMLButtonElement} */ (foot.querySelector(".next"));
 
   const recompute = () => {
     slides = [...resolve(def, answers).questions, SUBMIT];
@@ -73,10 +84,22 @@ export const mountDeck = ({ stage, bar, foot }, session) => {
     bar.setAttribute("aria-valuenow", String(Math.round(p * 100)));
   };
 
+  const hintText = () => {
+    if (!online) return t("offline");
+    if (done) return "";
+    // Going back is taught once, on the first card there is anything behind
+    if (current.id === backHintAt && !wentBack) return t(finePointer ? "hintKeysBack" : "hintSwipeBack");
+    if (!swiped && advances < HINTED_MOVES && current !== SUBMIT) return t(finePointer ? "hintKeys" : "hintSwipe");
+    return "";
+  };
+
   const paintFoot = () => {
-    if (!online) foot.textContent = t("offline");
-    else if (hinted || done) foot.textContent = "";
-    else foot.textContent = t(finePointer ? "hintKeys" : "hintSwipe");
+    hint.textContent = hintText();
+    backButton.replaceChildren(h("span", {}, t("back")));
+    nextButton.replaceChildren(h("span", {}, t("next")));
+    backButton.hidden = done || index() === 0;
+    // The last card has its own button, which sends
+    nextButton.hidden = done || current === SUBMIT;
   };
 
   // --- cards ---------------------------------------------------------------
@@ -239,8 +262,12 @@ export const mountDeck = ({ stage, bar, foot }, session) => {
     set(move.under, at.under);
   };
 
-  /** @param {Move} move @param {boolean} through finish the move, or put everything back */
-  const settle = async (move, through) => {
+  /**
+   * @param {Move} move
+   * @param {boolean} through finish the move, or put everything back
+   * @param {boolean} [taught] made by swipe or key, so that needs no more explaining
+   */
+  const settle = async (move, through, taught = false) => {
     if ("refused" in move) return;
     const forward = move.dir === 1;
     const end = pose(through === forward ? 1 : 0);
@@ -258,7 +285,11 @@ export const mountDeck = ({ stage, bar, foot }, session) => {
     current = move.slide;
     card.el.inert = false;
     card.el.style.transform = card.el.style.opacity = "";
-    hinted = true;
+    if (forward) {
+      advances++;
+      swiped ||= taught;
+      backHintAt ||= current.id;
+    } else wentBack = true;
     paintProgress();
     paintFoot();
     focusCard();
@@ -280,14 +311,44 @@ export const mountDeck = ({ stage, bar, foot }, session) => {
     card.el.style.transform = card.el.style.opacity = "";
   };
 
-  /** @param {1 | -1} dir */
-  const go = async (dir) => {
+  /**
+   * @param {1 | -1} dir
+   * @param {boolean} [taught] asked for by swipe or key rather than a button
+   */
+  const go = async (dir, taught = true) => {
     if (busy || done) return;
+    stopPeek();
     busy = true;
     const move = begin(dir);
     if ("refused" in move) await refuse(move, true);
-    else await settle(move, true);
+    else await settle(move, true, taught);
     busy = false;
+  };
+
+  // --- the peek ------------------------------------------------------------
+
+  // A reader who has not moved sees the first card start to leave and come
+  // back: what a swipe would do, shown rather than told
+
+  /** @type {Animation | null} */
+  let peeking = null;
+  /** @type {number[]} */
+  let peekTimers = [];
+
+  const stopPeek = () => {
+    peekTimers.forEach(clearTimeout);
+    peekTimers = [];
+    peeking?.cancel();
+    peeking = null;
+  };
+
+  const peek = () => {
+    if (busy || drag || done || advances || document.hidden || reduceMotion.matches) return;
+    const still = { transform: "none", opacity: "1" };
+    peeking = card.el.animate(
+      [{ ...still, easing: EASE_OUT }, { ...pose(0.12).top, offset: 0.35, easing: SPRING }, still],
+      { duration: 1100 },
+    );
   };
 
   // --- sending -------------------------------------------------------------
@@ -443,7 +504,7 @@ export const mountDeck = ({ stage, bar, foot }, session) => {
     } else {
       const far = Math.abs(dx) > stage.clientWidth * COMMIT_DISTANCE;
       const fast = Math.abs(speed) > COMMIT_SPEED && Math.sign(speed) === Math.sign(dx);
-      await settle(move, e.type === "pointerup" && (far || fast));
+      await settle(move, e.type === "pointerup" && (far || fast), true);
     }
     busy = false;
   };
@@ -487,6 +548,16 @@ export const mountDeck = ({ stage, bar, foot }, session) => {
     { passive: false },
   );
 
+  for (const [button, dir] of /** @type {const} */ ([[backButton, -1], [nextButton, 1]])) {
+    // Pressing one must not take the caret out of an answer being typed
+    button.addEventListener("mousedown", (e) => e.preventDefault());
+    button.addEventListener("click", () => go(dir, false));
+  }
+
+  // Anyone doing anything has no need of the peek
+  document.addEventListener("pointerdown", stopPeek, true);
+  document.addEventListener("keydown", stopPeek, true);
+
   document.addEventListener("keydown", (e) => {
     if (e.defaultPrevented || e.altKey || done) return;
     const target = /** @type {Element} */ (e.target);
@@ -525,8 +596,10 @@ export const mountDeck = ({ stage, bar, foot }, session) => {
     card = outro();
   } else {
     current = slides.find((s) => s.id === session.position) ?? slides[0];
-    hinted = current !== slides[0];
+    // Someone picking up where they left off has been through this before
+    swiped = current !== slides[0];
     card = build(current);
+    if (!swiped) peekTimers = PEEK_AT.map((ms) => window.setTimeout(peek, ms));
   }
   stage.append(card.el);
   card.el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 500, easing: "ease-out" });
