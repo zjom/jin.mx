@@ -1,0 +1,557 @@
+{
+  "title": "Your new website",
+  "audience": "invite",
+  "questions": [
+    {
+      "id": "welcome",
+      "type": "statement",
+      "eyebrow": "For {{customer}}",
+      "title": "A few questions about your new website.",
+      "body": "This takes about fifteen minutes. Rough answers are fine, and “not sure yet” is a good answer too. Your answers are saved as you go, so you can stop and come back to this link at any time."
+    },
+
+    {
+      "id": "about_intro",
+      "type": "statement",
+      "eyebrow": "Your business",
+      "title": "First, a little about you."
+    },
+    {
+      "id": "contact",
+      "type": "text",
+      "title": "Who is our main point of contact?",
+      "required": true,
+      "placeholder": "Full name"
+    },
+    {
+      "id": "email",
+      "type": "email",
+      "title": "What is the best email for them?",
+      "required": true
+    },
+    {
+      "id": "phone",
+      "type": "tel",
+      "title": "And a phone number?"
+    },
+    {
+      "id": "trading_name",
+      "type": "text",
+      "title": "What name should the website use for the business?",
+      "body": "Your trading name, if it differs from your company name.",
+      "required": true
+    },
+    {
+      "id": "customers",
+      "type": "multi",
+      "title": "Who buys from you?",
+      "body": "Choose as many as apply.",
+      "required": true,
+      "other": true,
+      "options": [
+        "Homeowners and renovators",
+        "Builders",
+        "Tilers and other trades",
+        "Architects and interior designers",
+        "Commercial projects"
+      ]
+    },
+    {
+      "id": "trade_pricing",
+      "type": "boolean",
+      "title": "Do trade customers get different prices or their own accounts?"
+    },
+    {
+      "id": "showroom",
+      "type": "choice",
+      "title": "Can customers visit you in person?",
+      "required": true,
+      "options": [
+        "Yes, we have a showroom",
+        "Yes, at our warehouse",
+        "Not yet, but a showroom is planned",
+        "No, we are online only"
+      ]
+    },
+    {
+      "id": "showroom_address",
+      "type": "text",
+      "title": "Where is it, and when is it open?",
+      "placeholder": "Address and opening hours",
+      "showIf": {
+        "id": "showroom",
+        "in": ["Yes, we have a showroom", "Yes, at our warehouse", "Not yet, but a showroom is planned"]
+      }
+    },
+    {
+      "id": "goals",
+      "type": "rank",
+      "title": "What should the website do for you?",
+      "body": "Tap them from most to least important.",
+      "options": [
+        "Sell online",
+        "Bring in quote requests",
+        "Bring people to the showroom",
+        "Send out samples",
+        "Win trade customers",
+        "Build the brand"
+      ]
+    },
+    {
+      "id": "inspiration",
+      "type": "long",
+      "title": "Which websites do you like, and why?",
+      "body": "Tile shops, competitors or anything else. Links are perfect.",
+      "placeholder": "One per line"
+    },
+
+    {
+      "id": "products_intro",
+      "type": "statement",
+      "eyebrow": "Your products",
+      "title": "Now, what you sell.",
+      "body": "This tells us the most about how big the site will be."
+    },
+    {
+      "id": "product_count",
+      "type": "choice",
+      "title": "Roughly how many tile designs will be on the site?",
+      "body": "Count each design once, even if it comes in several sizes or colours.",
+      "required": true,
+      "options": [
+        "Fewer than 50",
+        "50 to 200",
+        "200 to 1,000",
+        "More than 1,000",
+        "Not sure yet"
+      ]
+    },
+    {
+      "id": "variants",
+      "type": "boolean",
+      "title": "Do most designs come in several sizes, finishes or colours?"
+    },
+    {
+      "id": "other_products",
+      "type": "multi",
+      "title": "What else do you sell besides tiles?",
+      "other": true,
+      "options": [
+        "Grout and adhesive",
+        "Trims and edging",
+        "Waterproofing",
+        "Tools",
+        "Bathroomware and tapware",
+        "Stone and pavers",
+        "Installation",
+        "Nothing else"
+      ]
+    },
+    {
+      "id": "data_source",
+      "type": "choice",
+      "title": "Where does your product information live today?",
+      "body": "Names, sizes, prices and so on.",
+      "other": true,
+      "options": [
+        "Supplier spreadsheets or catalogues",
+        "Our own spreadsheet",
+        "An inventory or stock system",
+        "Xero, MYOB or other accounting software",
+        "Nowhere yet"
+      ]
+    },
+    {
+      "id": "data_files",
+      "type": "file",
+      "title": "Can you share a sample of your product list or a catalogue?",
+      "body": "Anything that shows what information you have.",
+      "max": 5,
+      "maxSize": 25,
+      "accept": ["pdf", "xls", "xlsx", "csv", "doc", "docx", "zip"]
+    },
+    {
+      "id": "photos",
+      "type": "choice",
+      "title": "What photos do you have of your products?",
+      "options": [
+        "Our own product and room photos",
+        "Our own product photos only",
+        "Photos from our suppliers",
+        "None yet; we will need photography"
+      ]
+    },
+    {
+      "id": "specs",
+      "type": "multi",
+      "title": "What should each product page show?",
+      "body": "Choose as many as apply.",
+      "other": true,
+      "options": [
+        "Size and thickness",
+        "Finish (matt, gloss, textured)",
+        "Slip rating",
+        "Wear rating (PEI)",
+        "Indoor or outdoor use",
+        "Wall or floor use",
+        "Price per square metre",
+        "Stock available",
+        "A spec sheet to download"
+      ]
+    },
+
+    {
+      "id": "features_intro",
+      "type": "statement",
+      "eyebrow": "How it works",
+      "title": "How customers will use the site."
+    },
+    {
+      "id": "sales",
+      "type": "choice",
+      "title": "How should customers buy?",
+      "required": true,
+      "options": [
+        { "value": "checkout", "label": "They pay online, at a checkout" },
+        { "value": "quote", "label": "They ask for a quote, and we follow up" },
+        { "value": "both", "label": "Some products online, the rest by quote" },
+        { "value": "browse", "label": "They browse, then call or visit us" },
+        { "value": "unsure", "label": "Not sure yet" }
+      ]
+    },
+    {
+      "id": "delivery",
+      "type": "multi",
+      "title": "How will orders reach customers?",
+      "options": [
+        "Our own delivery",
+        "A freight company",
+        "Click and collect",
+        "Not sure yet"
+      ],
+      "showIf": {
+        "id": "sales",
+        "in": ["checkout", "both"]
+      }
+    },
+    {
+      "id": "delivery_area",
+      "type": "choice",
+      "title": "Where will you deliver?",
+      "options": [
+        "Sydney only",
+        "Across NSW",
+        "Across Australia",
+        "Not sure yet"
+      ],
+      "showIf": {
+        "id": "sales",
+        "in": ["checkout", "both"]
+      }
+    },
+    {
+      "id": "live_stock",
+      "type": "boolean",
+      "title": "Should the site show how much stock you have?",
+      "body": "Kept up to date automatically, this usually means connecting to your stock system."
+    },
+    {
+      "id": "features",
+      "type": "multi",
+      "title": "Which of these would you like?",
+      "body": "Choose as many as apply.",
+      "other": true,
+      "options": [
+        "A calculator for how many tiles to buy",
+        "Ordering samples",
+        "A gallery of finished projects",
+        "Seeing tiles in a photo of a room",
+        "Booking a showroom visit",
+        "A login for trade customers",
+        "Saving favourites to a list",
+        "Chat (WhatsApp, WeChat or similar)"
+      ]
+    },
+    {
+      "id": "languages",
+      "type": "choice",
+      "title": "Which languages should the site be in?",
+      "required": true,
+      "other": true,
+      "options": [
+        "English only",
+        "English and Simplified Chinese",
+        "English and Traditional Chinese",
+        "English and both kinds of Chinese"
+      ]
+    },
+    {
+      "id": "translation",
+      "type": "choice",
+      "title": "Who will translate the content?",
+      "options": [
+        "We will",
+        "We would like you to arrange it",
+        "Not sure yet"
+      ],
+      "showIf": {
+        "id": "languages",
+        "not": "English only"
+      }
+    },
+
+    {
+      "id": "brand_intro",
+      "type": "statement",
+      "eyebrow": "Brand and content",
+      "title": "How the site looks and reads."
+    },
+    {
+      "id": "brand",
+      "type": "choice",
+      "title": "Do you have a logo and brand?",
+      "options": [
+        "Yes, a logo and brand guidelines",
+        "A logo only",
+        "No, we need help with that too"
+      ]
+    },
+    {
+      "id": "brand_files",
+      "type": "file",
+      "title": "Please share your logo and anything else about your brand.",
+      "max": 5,
+      "maxSize": 20,
+      "showIf": {
+        "id": "brand",
+        "in": ["Yes, a logo and brand guidelines", "A logo only"]
+      }
+    },
+    {
+      "id": "domain",
+      "type": "boolean",
+      "title": "Do you already own a web address (domain)?",
+      "body": "A .com.au address needs an ABN."
+    },
+    {
+      "id": "domain_name",
+      "type": "text",
+      "title": "What is it?",
+      "placeholder": "yourbusiness.com.au",
+      "showIf": {
+        "id": "domain",
+        "equals": true
+      }
+    },
+    {
+      "id": "email_setup",
+      "type": "boolean",
+      "title": "Do you need business email set up?",
+      "body": "For example, sales@yourbusiness.com.au."
+    },
+    {
+      "id": "pages",
+      "type": "multi",
+      "title": "Besides products, which pages do you need?",
+      "body": "Choose as many as apply.",
+      "other": true,
+      "options": [
+        "About us",
+        "Contact and location",
+        "Projects or inspiration",
+        "Blog or news",
+        "Questions and answers",
+        "Delivery and returns",
+        "For trade and architects",
+        "Care and installation guides"
+      ]
+    },
+    {
+      "id": "copy",
+      "type": "choice",
+      "title": "Who will write the words for the site?",
+      "options": [
+        "We will",
+        "We would like you to",
+        "A mix of both"
+      ]
+    },
+
+    {
+      "id": "after_intro",
+      "type": "statement",
+      "eyebrow": "After launch",
+      "title": "Looking after the site."
+    },
+    {
+      "id": "updates",
+      "type": "choice",
+      "title": "Who will add products and change prices after launch?",
+      "options": [
+        "We will, ourselves",
+        "We would like you to",
+        "A mix of both"
+      ]
+    },
+    {
+      "id": "comfort",
+      "type": "scale",
+      "title": "How comfortable is your team updating a website?",
+      "min": 1,
+      "max": 5,
+      "labels": ["Not at all", "Very"]
+    },
+    {
+      "id": "platform",
+      "type": "choice",
+      "title": "Would you like the site built on a particular platform?",
+      "other": true,
+      "options": [
+        "No preference",
+        "Shopify",
+        "WordPress"
+      ]
+    },
+    {
+      "id": "support",
+      "type": "multi",
+      "title": "What would you like ongoing help with?",
+      "body": "Choose as many as apply.",
+      "other": true,
+      "options": [
+        "Security updates and backups",
+        "Small changes each month",
+        "Adding new products",
+        "Watching for and fixing problems",
+        "Reports on visitors and sales"
+      ]
+    },
+
+    {
+      "id": "marketing_intro",
+      "type": "statement",
+      "eyebrow": "Getting found",
+      "title": "Bringing customers to the site.",
+      "body": "We can talk these through in detail later."
+    },
+    {
+      "id": "marketing",
+      "type": "boolean",
+      "title": "Would you like help bringing customers to the site?",
+      "body": "Through search engines, advertising or both."
+    },
+    {
+      "id": "marketing_kind",
+      "type": "multi",
+      "title": "Which of these interest you?",
+      "body": "Choose as many as apply.",
+      "other": true,
+      "options": [
+        "Showing up in Google search (SEO)",
+        "Showing up on Google Maps",
+        "Google Ads",
+        "Facebook and Instagram ads",
+        "Xiaohongshu (RED)",
+        "WeChat",
+        "Email newsletters"
+      ],
+      "showIf": {
+        "id": "marketing",
+        "equals": true
+      }
+    },
+    {
+      "id": "google_profile",
+      "type": "choice",
+      "title": "Is your business listed on Google Maps yet?",
+      "options": ["Yes", "No", "Not sure"],
+      "showIf": {
+        "id": "marketing",
+        "equals": true
+      }
+    },
+    {
+      "id": "areas",
+      "type": "text",
+      "title": "Which parts of Sydney matter most to you?",
+      "placeholder": "Suburbs or regions",
+      "showIf": {
+        "id": "marketing",
+        "equals": true
+      }
+    },
+    {
+      "id": "marketing_budget",
+      "type": "slider",
+      "title": "Roughly, what could you spend on marketing each month?",
+      "body": "Including the cost of the ads themselves.",
+      "min": 0,
+      "max": 10,
+      "step": 0.5,
+      "prefix": "$",
+      "suffix": "k",
+      "labels": ["Nothing yet", "$10k or more"],
+      "showIf": {
+        "id": "marketing",
+        "equals": true
+      }
+    },
+
+    {
+      "id": "commercial_intro",
+      "type": "statement",
+      "eyebrow": "Budget and timing",
+      "title": "Last of all, money and dates."
+    },
+    {
+      "id": "budget",
+      "type": "slider",
+      "title": "Roughly, what is the budget for building the site?",
+      "body": "Not counting ongoing costs. A rough figure helps us suggest the right option.",
+      "min": 5,
+      "max": 100,
+      "step": 5,
+      "prefix": "$",
+      "suffix": "k",
+      "labels": ["Lean", "Generous"]
+    },
+    {
+      "id": "deadline",
+      "type": "boolean",
+      "title": "Is there a date the site has to be live by?",
+      "body": "A showroom opening, for example.",
+      "required": true
+    },
+    {
+      "id": "deadline_date",
+      "type": "date",
+      "title": "When is it?",
+      "required": true,
+      "showIf": {
+        "id": "deadline",
+        "equals": true
+      }
+    },
+    {
+      "id": "deciders",
+      "type": "text",
+      "title": "Who else will help make decisions about the site?",
+      "placeholder": "Names and roles"
+    },
+    {
+      "id": "notes",
+      "type": "long",
+      "title": "Is there anything else we should know?",
+      "placeholder": "Take all the room you need"
+    }
+  ],
+  "submit": {
+    "title": "That’s everything.",
+    "body": "Swipe back to review, or send your answers to us now.",
+    "label": "Send"
+  },
+  "outro": {
+    "title": "Thank you.",
+    "body": "We have everything we need from {{customer}} for now. We will be in touch soon with a quote."
+  }
+}
