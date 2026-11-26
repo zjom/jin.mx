@@ -5,8 +5,6 @@
   "observability": {
     "enabled": true,
   },
-  "assets": {
-    "not_found_handling": "single-page-application",
-  },
+  "routes": [{ "pattern": "jin.mx", "custom_domain": true }],
   "preview_urls": false,
 }
