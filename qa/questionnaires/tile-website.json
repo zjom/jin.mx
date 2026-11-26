@@ -1,0 +1,1548 @@
+{
+  "title": {
+    "en": "Your new website",
+    "zh": "您的新网站"
+  },
+  "languages": [
+    "en",
+    "zh"
+  ],
+  "audience": "invite",
+  "questions": [
+    {
+      "id": "welcome",
+      "type": "statement",
+      "eyebrow": {
+        "en": "For {{customer}}",
+        "zh": "致 {{customer}}"
+      },
+      "title": {
+        "en": "A few questions about your new website.",
+        "zh": "关于您的新网站，想先问您几个问题。"
+      },
+      "body": {
+        "en": "This takes about fifteen minutes. Rough answers are fine, and “not sure yet” is a good answer too. Your answers are saved as you go, so you can stop and come back to this link at any time.",
+        "zh": "大约需要十五分钟。回答不必精确，“还不确定”也完全可以。您的回答会随时自动保存，可以中途离开，之后再通过此链接继续填写。"
+      }
+    },
+    {
+      "id": "about_intro",
+      "type": "statement",
+      "eyebrow": {
+        "en": "Your business",
+        "zh": "您的公司"
+      },
+      "title": {
+        "en": "First, a little about you.",
+        "zh": "首先，简单介绍一下您的公司。"
+      }
+    },
+    {
+      "id": "contact",
+      "type": "text",
+      "title": {
+        "en": "Who is our main point of contact?",
+        "zh": "我们的主要联系人是哪位？"
+      },
+      "required": true,
+      "placeholder": {
+        "en": "Full name",
+        "zh": "姓名"
+      }
+    },
+    {
+      "id": "email",
+      "type": "email",
+      "title": {
+        "en": "What is the best email for them?",
+        "zh": "联系人常用的邮箱是？"
+      },
+      "required": true
+    },
+    {
+      "id": "phone",
+      "type": "tel",
+      "title": {
+        "en": "And a phone number?",
+        "zh": "电话号码呢？"
+      }
+    },
+    {
+      "id": "trading_name",
+      "type": "text",
+      "title": {
+        "en": "What name should the website use for the business?",
+        "zh": "网站上应使用什么公司名称？"
+      },
+      "body": {
+        "en": "Your trading name, if it differs from your company name.",
+        "zh": "如果经营名称与注册公司名称不同，请填写经营名称。"
+      },
+      "required": true
+    },
+    {
+      "id": "customers",
+      "type": "multi",
+      "title": {
+        "en": "Who buys from you?",
+        "zh": "您的客户主要是哪些人？"
+      },
+      "body": {
+        "en": "Choose as many as apply.",
+        "zh": "可多选。"
+      },
+      "required": true,
+      "other": true,
+      "options": [
+        {
+          "value": "Homeowners and renovators",
+          "label": {
+            "en": "Homeowners and renovators",
+            "zh": "业主和自住装修客户"
+          }
+        },
+        {
+          "value": "Builders",
+          "label": {
+            "en": "Builders",
+            "zh": "建筑商"
+          }
+        },
+        {
+          "value": "Tilers and other trades",
+          "label": {
+            "en": "Tilers and other trades",
+            "zh": "贴砖师傅和其他工种"
+          }
+        },
+        {
+          "value": "Architects and interior designers",
+          "label": {
+            "en": "Architects and interior designers",
+            "zh": "建筑师和室内设计师"
+          }
+        },
+        {
+          "value": "Commercial projects",
+          "label": {
+            "en": "Commercial projects",
+            "zh": "商业项目"
+          }
+        }
+      ]
+    },
+    {
+      "id": "trade_pricing",
+      "type": "boolean",
+      "title": {
+        "en": "Do trade customers get different prices or their own accounts?",
+        "zh": "行业客户（如建筑商、施工师傅）是否享有不同价格或专属账户？"
+      }
+    },
+    {
+      "id": "showroom",
+      "type": "choice",
+      "title": {
+        "en": "Can customers visit you in person?",
+        "zh": "客户可以到店参观吗？"
+      },
+      "required": true,
+      "options": [
+        {
+          "value": "Yes, we have a showroom",
+          "label": {
+            "en": "Yes, we have a showroom",
+            "zh": "可以，我们有展厅"
+          }
+        },
+        {
+          "value": "Yes, at our warehouse",
+          "label": {
+            "en": "Yes, at our warehouse",
+            "zh": "可以，在我们的仓库"
+          }
+        },
+        {
+          "value": "Not yet, but a showroom is planned",
+          "label": {
+            "en": "Not yet, but a showroom is planned",
+            "zh": "暂时不行，但计划开设展厅"
+          }
+        },
+        {
+          "value": "No, we are online only",
+          "label": {
+            "en": "No, we are online only",
+            "zh": "不可以，我们只在网上销售"
+          }
+        }
+      ]
+    },
+    {
+      "id": "showroom_address",
+      "type": "text",
+      "title": {
+        "en": "Where is it, and when is it open?",
+        "zh": "地址在哪里？营业时间是？"
+      },
+      "placeholder": {
+        "en": "Address and opening hours",
+        "zh": "地址和营业时间"
+      },
+      "showIf": {
+        "id": "showroom",
+        "in": [
+          "Yes, we have a showroom",
+          "Yes, at our warehouse",
+          "Not yet, but a showroom is planned"
+        ]
+      }
+    },
+    {
+      "id": "goals",
+      "type": "rank",
+      "title": {
+        "en": "What should the website do for you?",
+        "zh": "您希望网站为您带来什么？"
+      },
+      "body": {
+        "en": "Tap them from most to least important.",
+        "zh": "请按重要程度从高到低依次点选。"
+      },
+      "options": [
+        {
+          "value": "Sell online",
+          "label": {
+            "en": "Sell online",
+            "zh": "在线销售"
+          }
+        },
+        {
+          "value": "Bring in quote requests",
+          "label": {
+            "en": "Bring in quote requests",
+            "zh": "获得询价"
+          }
+        },
+        {
+          "value": "Bring people to the showroom",
+          "label": {
+            "en": "Bring people to the showroom",
+            "zh": "吸引客户到展厅"
+          }
+        },
+        {
+          "value": "Send out samples",
+          "label": {
+            "en": "Send out samples",
+            "zh": "寄送样品"
+          }
+        },
+        {
+          "value": "Win trade customers",
+          "label": {
+            "en": "Win trade customers",
+            "zh": "争取行业客户"
+          }
+        },
+        {
+          "value": "Build the brand",
+          "label": {
+            "en": "Build the brand",
+            "zh": "建立品牌"
+          }
+        }
+      ]
+    },
+    {
+      "id": "inspiration",
+      "type": "long",
+      "title": {
+        "en": "Which websites do you like, and why?",
+        "zh": "您喜欢哪些网站？为什么？"
+      },
+      "body": {
+        "en": "Tile shops, competitors or anything else. Links are perfect.",
+        "zh": "瓷砖店、竞争对手或其他任何网站都可以，直接贴链接就好。"
+      },
+      "placeholder": {
+        "en": "One per line",
+        "zh": "每行一个"
+      }
+    },
+    {
+      "id": "products_intro",
+      "type": "statement",
+      "eyebrow": {
+        "en": "Your products",
+        "zh": "您的产品"
+      },
+      "title": {
+        "en": "Now, what you sell.",
+        "zh": "接下来，说说您卖什么。"
+      },
+      "body": {
+        "en": "This tells us the most about how big the site will be.",
+        "zh": "这部分最能帮助我们判断网站的规模。"
+      }
+    },
+    {
+      "id": "product_count",
+      "type": "choice",
+      "title": {
+        "en": "Roughly how many tile designs will be on the site?",
+        "zh": "网站上大约会有多少款瓷砖？"
+      },
+      "body": {
+        "en": "Count each design once, even if it comes in several sizes or colours.",
+        "zh": "同一款式即使有多种尺寸或颜色，也只算一款。"
+      },
+      "required": true,
+      "options": [
+        {
+          "value": "Fewer than 50",
+          "label": {
+            "en": "Fewer than 50",
+            "zh": "少于 50 款"
+          }
+        },
+        {
+          "value": "50 to 200",
+          "label": {
+            "en": "50 to 200",
+            "zh": "50 到 200 款"
+          }
+        },
+        {
+          "value": "200 to 1,000",
+          "label": {
+            "en": "200 to 1,000",
+            "zh": "200 到 1,000 款"
+          }
+        },
+        {
+          "value": "More than 1,000",
+          "label": {
+            "en": "More than 1,000",
+            "zh": "超过 1,000 款"
+          }
+        },
+        {
+          "value": "Not sure yet",
+          "label": {
+            "en": "Not sure yet",
+            "zh": "还不确定"
+          }
+        }
+      ]
+    },
+    {
+      "id": "variants",
+      "type": "boolean",
+      "title": {
+        "en": "Do most designs come in several sizes, finishes or colours?",
+        "zh": "大部分款式是否有多种尺寸、表面效果或颜色？"
+      }
+    },
+    {
+      "id": "other_products",
+      "type": "multi",
+      "title": {
+        "en": "What else do you sell besides tiles?",
+        "zh": "除了瓷砖，您还卖什么？"
+      },
+      "other": true,
+      "options": [
+        {
+          "value": "Grout and adhesive",
+          "label": {
+            "en": "Grout and adhesive",
+            "zh": "填缝剂和瓷砖胶"
+          }
+        },
+        {
+          "value": "Trims and edging",
+          "label": {
+            "en": "Trims and edging",
+            "zh": "收边条和阳角线"
+          }
+        },
+        {
+          "value": "Waterproofing",
+          "label": {
+            "en": "Waterproofing",
+            "zh": "防水材料"
+          }
+        },
+        {
+          "value": "Tools",
+          "label": {
+            "en": "Tools",
+            "zh": "工具"
+          }
+        },
+        {
+          "value": "Bathroomware and tapware",
+          "label": {
+            "en": "Bathroomware and tapware",
+            "zh": "卫浴洁具和水龙头"
+          }
+        },
+        {
+          "value": "Stone and pavers",
+          "label": {
+            "en": "Stone and pavers",
+            "zh": "石材和铺路砖"
+          }
+        },
+        {
+          "value": "Installation",
+          "label": {
+            "en": "Installation",
+            "zh": "安装服务"
+          }
+        },
+        {
+          "value": "Nothing else",
+          "label": {
+            "en": "Nothing else",
+            "zh": "没有其他产品"
+          }
+        }
+      ]
+    },
+    {
+      "id": "data_source",
+      "type": "choice",
+      "title": {
+        "en": "Where does your product information live today?",
+        "zh": "您的产品信息目前存放在哪里？"
+      },
+      "body": {
+        "en": "Names, sizes, prices and so on.",
+        "zh": "例如名称、尺寸、价格等。"
+      },
+      "other": true,
+      "options": [
+        {
+          "value": "Supplier spreadsheets or catalogues",
+          "label": {
+            "en": "Supplier spreadsheets or catalogues",
+            "zh": "供应商的表格或产品目录"
+          }
+        },
+        {
+          "value": "Our own spreadsheet",
+          "label": {
+            "en": "Our own spreadsheet",
+            "zh": "我们自己的表格"
+          }
+        },
+        {
+          "value": "An inventory or stock system",
+          "label": {
+            "en": "An inventory or stock system",
+            "zh": "进销存或库存系统"
+          }
+        },
+        {
+          "value": "Xero, MYOB or other accounting software",
+          "label": {
+            "en": "Xero, MYOB or other accounting software",
+            "zh": "Xero、MYOB 或其他会计软件"
+          }
+        },
+        {
+          "value": "Nowhere yet",
+          "label": {
+            "en": "Nowhere yet",
+            "zh": "还没有整理"
+          }
+        }
+      ]
+    },
+    {
+      "id": "data_files",
+      "type": "file",
+      "title": {
+        "en": "Can you share a sample of your product list or a catalogue?",
+        "zh": "能否提供一份产品清单样本或产品目录？"
+      },
+      "body": {
+        "en": "Anything that shows what information you have.",
+        "zh": "任何能体现您现有信息的文件都可以。"
+      },
+      "max": 5,
+      "maxSize": 25,
+      "accept": [
+        "pdf",
+        "xls",
+        "xlsx",
+        "csv",
+        "doc",
+        "docx",
+        "zip"
+      ]
+    },
+    {
+      "id": "photos",
+      "type": "choice",
+      "title": {
+        "en": "What photos do you have of your products?",
+        "zh": "您现有哪些产品照片？"
+      },
+      "options": [
+        {
+          "value": "Our own product and room photos",
+          "label": {
+            "en": "Our own product and room photos",
+            "zh": "自己拍摄的产品照和实景照"
+          }
+        },
+        {
+          "value": "Our own product photos only",
+          "label": {
+            "en": "Our own product photos only",
+            "zh": "只有自己拍摄的产品照"
+          }
+        },
+        {
+          "value": "Photos from our suppliers",
+          "label": {
+            "en": "Photos from our suppliers",
+            "zh": "供应商提供的照片"
+          }
+        },
+        {
+          "value": "None yet; we will need photography",
+          "label": {
+            "en": "None yet; we will need photography",
+            "zh": "还没有，需要安排拍摄"
+          }
+        }
+      ]
+    },
+    {
+      "id": "specs",
+      "type": "multi",
+      "title": {
+        "en": "What should each product page show?",
+        "zh": "每个产品页面应显示哪些信息？"
+      },
+      "body": {
+        "en": "Choose as many as apply.",
+        "zh": "可多选。"
+      },
+      "other": true,
+      "options": [
+        {
+          "value": "Size and thickness",
+          "label": {
+            "en": "Size and thickness",
+            "zh": "尺寸和厚度"
+          }
+        },
+        {
+          "value": "Finish (matt, gloss, textured)",
+          "label": {
+            "en": "Finish (matt, gloss, textured)",
+            "zh": "表面效果（哑光、亮光、纹理）"
+          }
+        },
+        {
+          "value": "Slip rating",
+          "label": {
+            "en": "Slip rating",
+            "zh": "防滑等级"
+          }
+        },
+        {
+          "value": "Wear rating (PEI)",
+          "label": {
+            "en": "Wear rating (PEI)",
+            "zh": "耐磨等级（PEI）"
+          }
+        },
+        {
+          "value": "Indoor or outdoor use",
+          "label": {
+            "en": "Indoor or outdoor use",
+            "zh": "适用室内或室外"
+          }
+        },
+        {
+          "value": "Wall or floor use",
+          "label": {
+            "en": "Wall or floor use",
+            "zh": "适用墙面或地面"
+          }
+        },
+        {
+          "value": "Price per square metre",
+          "label": {
+            "en": "Price per square metre",
+            "zh": "每平方米价格"
+          }
+        },
+        {
+          "value": "Stock available",
+          "label": {
+            "en": "Stock available",
+            "zh": "库存数量"
+          }
+        },
+        {
+          "value": "A spec sheet to download",
+          "label": {
+            "en": "A spec sheet to download",
+            "zh": "可下载的规格表"
+          }
+        }
+      ]
+    },
+    {
+      "id": "features_intro",
+      "type": "statement",
+      "eyebrow": {
+        "en": "How it works",
+        "zh": "网站功能"
+      },
+      "title": {
+        "en": "How customers will use the site.",
+        "zh": "客户会如何使用网站。"
+      }
+    },
+    {
+      "id": "sales",
+      "type": "choice",
+      "title": {
+        "en": "How should customers buy?",
+        "zh": "客户应如何购买？"
+      },
+      "required": true,
+      "options": [
+        {
+          "value": "checkout",
+          "label": {
+            "en": "They pay online, at a checkout",
+            "zh": "在网上下单付款"
+          }
+        },
+        {
+          "value": "quote",
+          "label": {
+            "en": "They ask for a quote, and we follow up",
+            "zh": "提交询价，由我们跟进"
+          }
+        },
+        {
+          "value": "both",
+          "label": {
+            "en": "Some products online, the rest by quote",
+            "zh": "部分产品在线购买，其余询价"
+          }
+        },
+        {
+          "value": "browse",
+          "label": {
+            "en": "They browse, then call or visit us",
+            "zh": "在网上浏览，再来电或到店"
+          }
+        },
+        {
+          "value": "unsure",
+          "label": {
+            "en": "Not sure yet",
+            "zh": "还不确定"
+          }
+        }
+      ]
+    },
+    {
+      "id": "delivery",
+      "type": "multi",
+      "title": {
+        "en": "How will orders reach customers?",
+        "zh": "订单如何送到客户手中？"
+      },
+      "options": [
+        {
+          "value": "Our own delivery",
+          "label": {
+            "en": "Our own delivery",
+            "zh": "我们自己配送"
+          }
+        },
+        {
+          "value": "A freight company",
+          "label": {
+            "en": "A freight company",
+            "zh": "物流公司"
+          }
+        },
+        {
+          "value": "Click and collect",
+          "label": {
+            "en": "Click and collect",
+            "zh": "网上下单，到店自提"
+          }
+        },
+        {
+          "value": "Not sure yet",
+          "label": {
+            "en": "Not sure yet",
+            "zh": "还不确定"
+          }
+        }
+      ],
+      "showIf": {
+        "id": "sales",
+        "in": [
+          "checkout",
+          "both"
+        ]
+      }
+    },
+    {
+      "id": "delivery_area",
+      "type": "choice",
+      "title": {
+        "en": "Where will you deliver?",
+        "zh": "配送范围是？"
+      },
+      "options": [
+        {
+          "value": "Sydney only",
+          "label": {
+            "en": "Sydney only",
+            "zh": "仅限悉尼"
+          }
+        },
+        {
+          "value": "Across NSW",
+          "label": {
+            "en": "Across NSW",
+            "zh": "新州全境"
+          }
+        },
+        {
+          "value": "Across Australia",
+          "label": {
+            "en": "Across Australia",
+            "zh": "澳洲全境"
+          }
+        },
+        {
+          "value": "Not sure yet",
+          "label": {
+            "en": "Not sure yet",
+            "zh": "还不确定"
+          }
+        }
+      ],
+      "showIf": {
+        "id": "sales",
+        "in": [
+          "checkout",
+          "both"
+        ]
+      }
+    },
+    {
+      "id": "live_stock",
+      "type": "boolean",
+      "title": {
+        "en": "Should the site show how much stock you have?",
+        "zh": "网站是否需要显示库存数量？"
+      },
+      "body": {
+        "en": "Kept up to date automatically, this usually means connecting to your stock system.",
+        "zh": "要让库存自动保持最新，通常需要与您的库存系统对接。"
+      }
+    },
+    {
+      "id": "features",
+      "type": "multi",
+      "title": {
+        "en": "Which of these would you like?",
+        "zh": "您希望有以下哪些功能？"
+      },
+      "body": {
+        "en": "Choose as many as apply.",
+        "zh": "可多选。"
+      },
+      "other": true,
+      "options": [
+        {
+          "value": "A calculator for how many tiles to buy",
+          "label": {
+            "en": "A calculator for how many tiles to buy",
+            "zh": "计算所需瓷砖数量的工具"
+          }
+        },
+        {
+          "value": "Ordering samples",
+          "label": {
+            "en": "Ordering samples",
+            "zh": "在线订购样品"
+          }
+        },
+        {
+          "value": "A gallery of finished projects",
+          "label": {
+            "en": "A gallery of finished projects",
+            "zh": "完工案例展示"
+          }
+        },
+        {
+          "value": "Seeing tiles in a photo of a room",
+          "label": {
+            "en": "Seeing tiles in a photo of a room",
+            "zh": "在房间照片中预览瓷砖效果"
+          }
+        },
+        {
+          "value": "Booking a showroom visit",
+          "label": {
+            "en": "Booking a showroom visit",
+            "zh": "预约参观展厅"
+          }
+        },
+        {
+          "value": "A login for trade customers",
+          "label": {
+            "en": "A login for trade customers",
+            "zh": "行业客户登录"
+          }
+        },
+        {
+          "value": "Saving favourites to a list",
+          "label": {
+            "en": "Saving favourites to a list",
+            "zh": "收藏心仪产品"
+          }
+        },
+        {
+          "value": "Chat (WhatsApp, WeChat or similar)",
+          "label": {
+            "en": "Chat (WhatsApp, WeChat or similar)",
+            "zh": "在线聊天（WhatsApp、微信等）"
+          }
+        }
+      ]
+    },
+    {
+      "id": "languages",
+      "type": "choice",
+      "title": {
+        "en": "Which languages should the site be in?",
+        "zh": "网站需要哪些语言？"
+      },
+      "required": true,
+      "other": true,
+      "options": [
+        {
+          "value": "English only",
+          "label": {
+            "en": "English only",
+            "zh": "仅英文"
+          }
+        },
+        {
+          "value": "English and Simplified Chinese",
+          "label": {
+            "en": "English and Simplified Chinese",
+            "zh": "英文和简体中文"
+          }
+        },
+        {
+          "value": "English and Traditional Chinese",
+          "label": {
+            "en": "English and Traditional Chinese",
+            "zh": "英文和繁体中文"
+          }
+        },
+        {
+          "value": "English and both kinds of Chinese",
+          "label": {
+            "en": "English and both kinds of Chinese",
+            "zh": "英文、简体中文和繁体中文"
+          }
+        }
+      ]
+    },
+    {
+      "id": "translation",
+      "type": "choice",
+      "title": {
+        "en": "Who will translate the content?",
+        "zh": "内容由谁来翻译？"
+      },
+      "options": [
+        {
+          "value": "We will",
+          "label": {
+            "en": "We will",
+            "zh": "我们自己来"
+          }
+        },
+        {
+          "value": "We would like you to arrange it",
+          "label": {
+            "en": "We would like you to arrange it",
+            "zh": "希望由你们安排"
+          }
+        },
+        {
+          "value": "Not sure yet",
+          "label": {
+            "en": "Not sure yet",
+            "zh": "还不确定"
+          }
+        }
+      ],
+      "showIf": {
+        "id": "languages",
+        "not": "English only"
+      }
+    },
+    {
+      "id": "brand_intro",
+      "type": "statement",
+      "eyebrow": {
+        "en": "Brand and content",
+        "zh": "品牌与内容"
+      },
+      "title": {
+        "en": "How the site looks and reads.",
+        "zh": "网站的外观与文字。"
+      }
+    },
+    {
+      "id": "brand",
+      "type": "choice",
+      "title": {
+        "en": "Do you have a logo and brand?",
+        "zh": "您有标志和品牌形象吗？"
+      },
+      "options": [
+        {
+          "value": "Yes, a logo and brand guidelines",
+          "label": {
+            "en": "Yes, a logo and brand guidelines",
+            "zh": "有，标志和品牌规范都有"
+          }
+        },
+        {
+          "value": "A logo only",
+          "label": {
+            "en": "A logo only",
+            "zh": "只有标志"
+          }
+        },
+        {
+          "value": "No, we need help with that too",
+          "label": {
+            "en": "No, we need help with that too",
+            "zh": "没有，这方面也需要帮忙"
+          }
+        }
+      ]
+    },
+    {
+      "id": "brand_files",
+      "type": "file",
+      "title": {
+        "en": "Please share your logo and anything else about your brand.",
+        "zh": "请上传您的标志和其他品牌相关资料。"
+      },
+      "max": 5,
+      "maxSize": 20,
+      "showIf": {
+        "id": "brand",
+        "in": [
+          "Yes, a logo and brand guidelines",
+          "A logo only"
+        ]
+      }
+    },
+    {
+      "id": "domain",
+      "type": "boolean",
+      "title": {
+        "en": "Do you already own a web address (domain)?",
+        "zh": "您已经有网址（域名）了吗？"
+      },
+      "body": {
+        "en": "A .com.au address needs an ABN.",
+        "zh": "注册 .com.au 域名需要 ABN。"
+      }
+    },
+    {
+      "id": "domain_name",
+      "type": "text",
+      "title": {
+        "en": "What is it?",
+        "zh": "域名是？"
+      },
+      "placeholder": {
+        "en": "yourbusiness.com.au",
+        "zh": "yourbusiness.com.au"
+      },
+      "showIf": {
+        "id": "domain",
+        "equals": true
+      }
+    },
+    {
+      "id": "email_setup",
+      "type": "boolean",
+      "title": {
+        "en": "Do you need business email set up?",
+        "zh": "需要设置企业邮箱吗？"
+      },
+      "body": {
+        "en": "For example, sales@yourbusiness.com.au.",
+        "zh": "例如 sales@yourbusiness.com.au。"
+      }
+    },
+    {
+      "id": "pages",
+      "type": "multi",
+      "title": {
+        "en": "Besides products, which pages do you need?",
+        "zh": "除产品页外，还需要哪些页面？"
+      },
+      "body": {
+        "en": "Choose as many as apply.",
+        "zh": "可多选。"
+      },
+      "other": true,
+      "options": [
+        {
+          "value": "About us",
+          "label": {
+            "en": "About us",
+            "zh": "关于我们"
+          }
+        },
+        {
+          "value": "Contact and location",
+          "label": {
+            "en": "Contact and location",
+            "zh": "联系方式和地址"
+          }
+        },
+        {
+          "value": "Projects or inspiration",
+          "label": {
+            "en": "Projects or inspiration",
+            "zh": "案例或灵感"
+          }
+        },
+        {
+          "value": "Blog or news",
+          "label": {
+            "en": "Blog or news",
+            "zh": "博客或新闻"
+          }
+        },
+        {
+          "value": "Questions and answers",
+          "label": {
+            "en": "Questions and answers",
+            "zh": "常见问题"
+          }
+        },
+        {
+          "value": "Delivery and returns",
+          "label": {
+            "en": "Delivery and returns",
+            "zh": "配送与退换"
+          }
+        },
+        {
+          "value": "For trade and architects",
+          "label": {
+            "en": "For trade and architects",
+            "zh": "行业客户与建筑师专区"
+          }
+        },
+        {
+          "value": "Care and installation guides",
+          "label": {
+            "en": "Care and installation guides",
+            "zh": "保养和安装指南"
+          }
+        }
+      ]
+    },
+    {
+      "id": "copy",
+      "type": "choice",
+      "title": {
+        "en": "Who will write the words for the site?",
+        "zh": "网站文案由谁来写？"
+      },
+      "options": [
+        {
+          "value": "We will",
+          "label": {
+            "en": "We will",
+            "zh": "我们自己来"
+          }
+        },
+        {
+          "value": "We would like you to",
+          "label": {
+            "en": "We would like you to",
+            "zh": "希望由你们负责"
+          }
+        },
+        {
+          "value": "A mix of both",
+          "label": {
+            "en": "A mix of both",
+            "zh": "双方各负责一部分"
+          }
+        }
+      ]
+    },
+    {
+      "id": "after_intro",
+      "type": "statement",
+      "eyebrow": {
+        "en": "After launch",
+        "zh": "上线之后"
+      },
+      "title": {
+        "en": "Looking after the site.",
+        "zh": "网站的日常维护。"
+      }
+    },
+    {
+      "id": "updates",
+      "type": "choice",
+      "title": {
+        "en": "Who will add products and change prices after launch?",
+        "zh": "上线后由谁添加产品、修改价格？"
+      },
+      "options": [
+        {
+          "value": "We will, ourselves",
+          "label": {
+            "en": "We will, ourselves",
+            "zh": "我们自己来"
+          }
+        },
+        {
+          "value": "We would like you to",
+          "label": {
+            "en": "We would like you to",
+            "zh": "希望由你们负责"
+          }
+        },
+        {
+          "value": "A mix of both",
+          "label": {
+            "en": "A mix of both",
+            "zh": "双方各负责一部分"
+          }
+        }
+      ]
+    },
+    {
+      "id": "comfort",
+      "type": "scale",
+      "title": {
+        "en": "How comfortable is your team updating a website?",
+        "zh": "您的团队自己更新网站的熟练程度如何？"
+      },
+      "min": 1,
+      "max": 5,
+      "labels": [
+        {
+          "en": "Not at all",
+          "zh": "完全不熟"
+        },
+        {
+          "en": "Very",
+          "zh": "非常熟练"
+        }
+      ]
+    },
+    {
+      "id": "platform",
+      "type": "choice",
+      "title": {
+        "en": "Would you like the site built on a particular platform?",
+        "zh": "您希望网站用特定的平台搭建吗？"
+      },
+      "other": true,
+      "options": [
+        {
+          "value": "No preference",
+          "label": {
+            "en": "No preference",
+            "zh": "没有偏好"
+          }
+        },
+        {
+          "value": "Shopify",
+          "label": {
+            "en": "Shopify",
+            "zh": "Shopify"
+          }
+        },
+        {
+          "value": "WordPress",
+          "label": {
+            "en": "WordPress",
+            "zh": "WordPress"
+          }
+        }
+      ]
+    },
+    {
+      "id": "support",
+      "type": "multi",
+      "title": {
+        "en": "What would you like ongoing help with?",
+        "zh": "上线后，您希望我们持续协助哪些方面？"
+      },
+      "body": {
+        "en": "Choose as many as apply.",
+        "zh": "可多选。"
+      },
+      "other": true,
+      "options": [
+        {
+          "value": "Security updates and backups",
+          "label": {
+            "en": "Security updates and backups",
+            "zh": "安全更新和备份"
+          }
+        },
+        {
+          "value": "Small changes each month",
+          "label": {
+            "en": "Small changes each month",
+            "zh": "每月少量修改"
+          }
+        },
+        {
+          "value": "Adding new products",
+          "label": {
+            "en": "Adding new products",
+            "zh": "上架新产品"
+          }
+        },
+        {
+          "value": "Watching for and fixing problems",
+          "label": {
+            "en": "Watching for and fixing problems",
+            "zh": "监控并修复问题"
+          }
+        },
+        {
+          "value": "Reports on visitors and sales",
+          "label": {
+            "en": "Reports on visitors and sales",
+            "zh": "访客和销售报告"
+          }
+        }
+      ]
+    },
+    {
+      "id": "marketing_intro",
+      "type": "statement",
+      "eyebrow": {
+        "en": "Getting found",
+        "zh": "推广获客"
+      },
+      "title": {
+        "en": "Bringing customers to the site.",
+        "zh": "为网站带来客户。"
+      },
+      "body": {
+        "en": "We can talk these through in detail later.",
+        "zh": "这些之后可以再详细讨论。"
+      }
+    },
+    {
+      "id": "marketing",
+      "type": "boolean",
+      "title": {
+        "en": "Would you like help bringing customers to the site?",
+        "zh": "需要我们帮忙为网站带来客户吗？"
+      },
+      "body": {
+        "en": "Through search engines, advertising or both.",
+        "zh": "通过搜索引擎、广告，或两者结合。"
+      }
+    },
+    {
+      "id": "marketing_kind",
+      "type": "multi",
+      "title": {
+        "en": "Which of these interest you?",
+        "zh": "您对以下哪些感兴趣？"
+      },
+      "body": {
+        "en": "Choose as many as apply.",
+        "zh": "可多选。"
+      },
+      "other": true,
+      "options": [
+        {
+          "value": "Showing up in Google search (SEO)",
+          "label": {
+            "en": "Showing up in Google search (SEO)",
+            "zh": "出现在 Google 搜索结果中（SEO）"
+          }
+        },
+        {
+          "value": "Showing up on Google Maps",
+          "label": {
+            "en": "Showing up on Google Maps",
+            "zh": "出现在 Google 地图上"
+          }
+        },
+        {
+          "value": "Google Ads",
+          "label": {
+            "en": "Google Ads",
+            "zh": "Google 广告"
+          }
+        },
+        {
+          "value": "Facebook and Instagram ads",
+          "label": {
+            "en": "Facebook and Instagram ads",
+            "zh": "Facebook 和 Instagram 广告"
+          }
+        },
+        {
+          "value": "Xiaohongshu (RED)",
+          "label": {
+            "en": "Xiaohongshu (RED)",
+            "zh": "小红书"
+          }
+        },
+        {
+          "value": "WeChat",
+          "label": {
+            "en": "WeChat",
+            "zh": "微信"
+          }
+        },
+        {
+          "value": "Email newsletters",
+          "label": {
+            "en": "Email newsletters",
+            "zh": "电子邮件简报"
+          }
+        }
+      ],
+      "showIf": {
+        "id": "marketing",
+        "equals": true
+      }
+    },
+    {
+      "id": "google_profile",
+      "type": "choice",
+      "title": {
+        "en": "Is your business listed on Google Maps yet?",
+        "zh": "您的公司已经在 Google 地图上登记了吗？"
+      },
+      "options": [
+        {
+          "value": "Yes",
+          "label": {
+            "en": "Yes",
+            "zh": "已登记"
+          }
+        },
+        {
+          "value": "No",
+          "label": {
+            "en": "No",
+            "zh": "还没有"
+          }
+        },
+        {
+          "value": "Not sure",
+          "label": {
+            "en": "Not sure",
+            "zh": "不确定"
+          }
+        }
+      ],
+      "showIf": {
+        "id": "marketing",
+        "equals": true
+      }
+    },
+    {
+      "id": "areas",
+      "type": "text",
+      "title": {
+        "en": "Which parts of Sydney matter most to you?",
+        "zh": "悉尼的哪些区域对您最重要？"
+      },
+      "placeholder": {
+        "en": "Suburbs or regions",
+        "zh": "城区或区域"
+      },
+      "showIf": {
+        "id": "marketing",
+        "equals": true
+      }
+    },
+    {
+      "id": "marketing_budget",
+      "type": "slider",
+      "title": {
+        "en": "Roughly, what could you spend on marketing each month?",
+        "zh": "每月大约可以投入多少推广费用？"
+      },
+      "body": {
+        "en": "Including the cost of the ads themselves.",
+        "zh": "包括广告本身的费用。"
+      },
+      "min": 0,
+      "max": 10,
+      "step": 0.5,
+      "prefix": "$",
+      "suffix": "k",
+      "labels": [
+        {
+          "en": "Nothing yet",
+          "zh": "暂不投入"
+        },
+        {
+          "en": "$10k or more",
+          "zh": "$10k 或以上"
+        }
+      ],
+      "showIf": {
+        "id": "marketing",
+        "equals": true
+      }
+    },
+    {
+      "id": "commercial_intro",
+      "type": "statement",
+      "eyebrow": {
+        "en": "Budget and timing",
+        "zh": "预算与时间"
+      },
+      "title": {
+        "en": "Last of all, money and dates.",
+        "zh": "最后，谈谈预算和时间。"
+      }
+    },
+    {
+      "id": "budget",
+      "type": "slider",
+      "title": {
+        "en": "Roughly, what is the budget for building the site?",
+        "zh": "网站建设的预算大约是多少？"
+      },
+      "body": {
+        "en": "Not counting ongoing costs. A rough figure helps us suggest the right option.",
+        "zh": "不含后续费用。有个大概的数字，我们就能推荐合适的方案。"
+      },
+      "min": 5,
+      "max": 100,
+      "step": 5,
+      "prefix": "$",
+      "suffix": "k",
+      "labels": [
+        {
+          "en": "Lean",
+          "zh": "精简"
+        },
+        {
+          "en": "Generous",
+          "zh": "充裕"
+        }
+      ]
+    },
+    {
+      "id": "deadline",
+      "type": "boolean",
+      "title": {
+        "en": "Is there a date the site has to be live by?",
+        "zh": "网站有必须上线的日期吗？"
+      },
+      "body": {
+        "en": "A showroom opening, for example.",
+        "zh": "例如展厅开业。"
+      },
+      "required": true
+    },
+    {
+      "id": "deadline_date",
+      "type": "date",
+      "title": {
+        "en": "When is it?",
+        "zh": "是哪一天？"
+      },
+      "required": true,
+      "showIf": {
+        "id": "deadline",
+        "equals": true
+      }
+    },
+    {
+      "id": "deciders",
+      "type": "text",
+      "title": {
+        "en": "Who else will help make decisions about the site?",
+        "zh": "还有谁会参与网站相关的决策？"
+      },
+      "placeholder": {
+        "en": "Names and roles",
+        "zh": "姓名和职务"
+      }
+    },
+    {
+      "id": "notes",
+      "type": "long",
+      "title": {
+        "en": "Is there anything else we should know?",
+        "zh": "还有什么需要我们了解的吗？"
+      },
+      "placeholder": {
+        "en": "Take all the room you need",
+        "zh": "篇幅不限，想写多少都可以"
+      }
+    }
+  ],
+  "submit": {
+    "title": {
+      "en": "That’s everything.",
+      "zh": "全部完成了。"
+    },
+    "body": {
+      "en": "Swipe back to review, or send your answers to us now.",
+      "zh": "可以向右滑动检查回答，或现在提交给我们。"
+    },
+    "label": {
+      "en": "Send",
+      "zh": "提交"
+    }
+  },
+  "outro": {
+    "title": {
+      "en": "Thank you.",
+      "zh": "谢谢。"
+    },
+    "body": {
+      "en": "We have everything we need from {{customer}} for now. We will be in touch soon with a quote.",
+      "zh": "我们已收到 {{customer}} 的全部信息，稍后会把报价发给您。"
+    }
+  }
+}
