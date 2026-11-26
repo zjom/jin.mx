@@ -18,9 +18,9 @@
   // the Access application, /admin answers no one
   "vars": {
     // <team>.cloudflareaccess.com
-    "ACCESS_TEAM_DOMAIN": "",
+    "ACCESS_TEAM_DOMAIN": "zjom.cloudflareaccess.com",
     // The application's "Application Audience (AUD) Tag"
-    "ACCESS_AUD": "",
+    "ACCESS_AUD": "5e66c7dcbd7c59ef954dea2b84f19a9049cfb2fbf49f18c2b8f1bbe133918992",
   },
   // Customer progress and every submission. With no database_id, wrangler
   // creates the database on the first deploy
