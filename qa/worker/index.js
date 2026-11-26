@@ -1,10 +1,11 @@
 // @ts-check
 
-import { firstProblem, resolve } from "../shared/schema.js";
+import { fileProblem, fileRules, firstProblem, resolve } from "../shared/schema.js";
 
 /**
  * @typedef {import("../shared/schema.js").Definition} Definition
- * @typedef {{ DB: any, SUBMIT_LIMIT?: { limit: (o: { key: string }) => Promise<{ success: boolean }> } }} Env
+ * @typedef {{ limit: (o: { key: string }) => Promise<{ success: boolean }> }} Limiter
+ * @typedef {{ DB: any, FILES: any, SUBMIT_LIMIT?: Limiter, UPLOAD_LIMIT?: Limiter }} Env
  */
 
 // Every file in questionnaires/ is a questionnaire; its name is its slug
@@ -60,24 +61,82 @@ const parse = (text) => {
   }
 };
 
+/** @param {Request} request @param {Limiter | undefined} limiter */
+const allowed = async (request, limiter) =>
+  !limiter || (await limiter.limit({ key: request.headers.get("cf-connecting-ip") ?? "unknown" })).success;
+
+/**
+ * Stores one file for a file question. The key it returns is what the answer
+ * holds; scope ties it to one questionnaire or one customer link
+ * @param {Request} request @param {Env} env @param {Definition} definition
+ * @param {string} scope @param {string} questionId
+ */
+const upload = async (request, env, definition, scope, questionId) => {
+  const q = definition.questions.find((x) => x.id === questionId && x.type === "file");
+  if (!q || request.method !== "POST") return fail(404, "not found");
+  if (!(await allowed(request, env.UPLOAD_LIMIT))) return fail(429, "too many uploads");
+  if (Number(request.headers.get("content-length")) > fileRules(q).maxBytes) return fail(413, "too large");
+
+  let name;
+  try {
+    name = decodeURIComponent(request.headers.get("x-file-name") ?? "")
+      .replace(/[\u0000-\u001f\\/]/g, "")
+      .slice(0, 255);
+  } catch {
+    return fail(400, "bad request");
+  }
+  const body = await request.arrayBuffer();
+  const problem = fileProblem(q, { name, size: body.byteLength });
+  if (problem) return fail(body.byteLength > fileRules(q).maxBytes ? 413 : 415, problem);
+
+  const type = request.headers.get("content-type") ?? "application/octet-stream";
+  const key = `${scope}/${questionId}/${crypto.randomUUID()}`;
+  await env.FILES.put(key, body, {
+    httpMetadata: {
+      contentType: type,
+      contentDisposition: `attachment; filename*=UTF-8''${encodeURIComponent(name)}`,
+    },
+  });
+  return json({ ok: true, file: { key, name, size: body.byteLength, type } });
+};
+
+/**
+ * @param {Env} env @param {Definition} definition
+ * @param {Record<string, unknown>} answers already checked for shape
+ * @param {string} scope
+ * @returns {Promise<import("../shared/schema.js").Problem | null>} a file answer that names something we do not hold
+ */
+const missingFile = async (env, definition, answers, scope) => {
+  for (const q of definition.questions) {
+    if (q.type !== "file") continue;
+    for (const file of /** @type {{ key: string }[]} */ (answers[q.id] ?? [])) {
+      if (!file.key.startsWith(`${scope}/${q.id}/`) || !(await env.FILES.head(file.key))) {
+        return { id: q.id, message: "Please add this file again." };
+      }
+    }
+  }
+  return null;
+};
+
 /**
  * A general questionnaire: read it, or submit it
- * @param {Request} request @param {Env} env @param {string} slug
+ * @param {Request} request @param {Env} env @param {string} slug @param {string[]} rest
  */
-const general = async (request, env, slug) => {
+const general = async (request, env, slug, rest) => {
   const definition = definitions.get(slug);
   if (!definition || definition.audience === "invite") return fail(404, "not found");
 
+  const scope = `q/${slug}`;
+  if (rest[0] === "files") return upload(request, env, definition, scope, rest[1]);
   if (request.method === "GET") return json({ slug, definition });
   if (request.method !== "POST") return fail(405, "method not allowed");
 
-  const ip = request.headers.get("cf-connecting-ip") ?? "unknown";
-  if (env.SUBMIT_LIMIT && !(await env.SUBMIT_LIMIT.limit({ key: ip })).success) {
-    return fail(429, "too many submissions");
-  }
+  if (!(await allowed(request, env.SUBMIT_LIMIT))) return fail(429, "too many submissions");
   const sent = await readAnswers(request);
   if (!sent) return fail(400, "bad request");
-  const problem = firstProblem(definition, sent);
+  const problem =
+    firstProblem(definition, sent) ??
+    (await missingFile(env, definition, resolve(definition, sent).answers, scope));
   if (problem) return json({ ok: false, problem }, 422);
 
   await env.DB.prepare(
@@ -95,9 +154,9 @@ const general = async (request, env, slug) => {
 
 /**
  * A customer's link: read it with their progress, save progress, or submit
- * @param {Request} request @param {Env} env @param {string} token
+ * @param {Request} request @param {Env} env @param {string} token @param {string[]} rest
  */
-const invite = async (request, env, token) => {
+const invite = async (request, env, token, rest) => {
   if (!TOKEN.test(token)) return fail(404, "not found");
   const row = await env.DB.prepare(
     "SELECT questionnaire, customer, vars, answers, position, updated_at, submitted_at FROM invites WHERE token = ?",
@@ -107,6 +166,11 @@ const invite = async (request, env, token) => {
   const definition = row && definitions.get(row.questionnaire);
   if (!definition) return fail(404, "not found");
 
+  const scope = `i/${token}`;
+  if (rest[0] === "files") {
+    if (row.submitted_at) return fail(409, "already submitted");
+    return upload(request, env, definition, scope, rest[1]);
+  }
   if (request.method === "GET") {
     return json({
       slug: row.questionnaire,
@@ -140,7 +204,9 @@ const invite = async (request, env, token) => {
     return json({ ok: true });
   }
 
-  const problem = firstProblem(definition, sent);
+  const problem =
+    firstProblem(definition, sent) ??
+    (await missingFile(env, definition, resolve(definition, sent).answers, scope));
   if (problem) return json({ ok: false, problem }, 422);
   await env.DB.prepare(
     "UPDATE invites SET answers = ?, position = NULL, updated_at = ?, submitted_at = ? WHERE token = ? AND submitted_at IS NULL",
@@ -154,10 +220,12 @@ export default {
   /** @param {Request} request @param {Env} env */
   async fetch(request, env) {
     const [, api, kind, id, ...rest] = new URL(request.url).pathname.split("/");
-    if (api !== "api" || !id || rest.length) return fail(404, "not found");
+    // /api/<kind>/<id>, or /api/<kind>/<id>/files/<question> to add a file
+    const shaped = rest.length === 0 || (rest.length === 2 && rest[0] === "files");
+    if (api !== "api" || !id || !shaped) return fail(404, "not found");
     try {
-      if (kind === "q") return await general(request, env, id);
-      if (kind === "i") return await invite(request, env, id);
+      if (kind === "q") return await general(request, env, id, rest);
+      if (kind === "i") return await invite(request, env, id, rest);
     } catch (e) {
       console.error(e);
       return fail(500, "something went wrong");

@@ -20,8 +20,15 @@
       "migrations_dir": "migrations",
     },
   ],
-  // Public submissions: 10 a minute per visitor
+  // Files added to file questions. Private: nothing here is served back
+  "r2_buckets": [{ "binding": "FILES", "bucket_name": "qa-uploads" }],
+  // Per visitor: 10 submissions and 30 file uploads a minute
   "ratelimits": [
+    {
+      "name": "UPLOAD_LIMIT",
+      "namespace_id": "1002",
+      "simple": { "limit": 30, "period": 60 },
+    },
     {
       "name": "SUBMIT_LIMIT",
       "namespace_id": "1001",

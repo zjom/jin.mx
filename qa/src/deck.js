@@ -142,6 +142,7 @@ export const mountDeck = ({ stage, bar, foot }, session) => {
         session.save(answers, current.id);
       },
       title.id,
+      session.upload,
     );
     if (field) made.el.querySelector(".error")?.before(h("div", { class: "field" }, field));
     return made;
@@ -201,6 +202,9 @@ export const mountDeck = ({ stage, bar, foot }, session) => {
    */
   const begin = (dir) => {
     if (dir === 1) {
+      // A control that is mid-task (a file still uploading) says so itself
+      const waiting = card.el.querySelector("[data-busy]")?.getAttribute("data-busy");
+      if (waiting) return { dir, refused: waiting };
       const message = current === SUBMIT ? "" : (problemWith(current, answers[current.id]) ?? null);
       if (current === SUBMIT || message !== null) return { dir, refused: message ?? "" };
     } else if (index() === 0) return { dir, refused: "" };

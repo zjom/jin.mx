@@ -48,6 +48,7 @@ Every question has an `id`, a `type` and a `title`, and may have a `body`
 | `date`, `time` | `yyyy-mm-dd`, `hh:mm` | `earliest`, `latest` (date) |
 | `rank` | all options, in order | `options` |
 | `matrix` | `{ row: column }` | `rows`, `columns`, `labels` |
+| `file` | list of stored files | `max` (how many, 1), `maxSize` (MB each, 10; 25 at most), `accept` (extensions) |
 
 `options` are strings, or `{ "value": …, "label": … }`. With `"other": true`
 a free text answer is stored as `{ "other": "…" }`.
@@ -81,6 +82,16 @@ pnpm exec wrangler d1 execute qa --remote --json \
 `submissions` holds everything sent, from both kinds. Progress on customer
 links that have not been sent yet is in `invites`.
 
+A `file` answer lists each file's `name`, `size` and `key`. The files
+themselves are in the private R2 bucket `qa-uploads`; fetch one by its key:
+
+```sh
+pnpm exec wrangler r2 object get "qa-uploads/<key>" --remote --file brief.pdf
+```
+
+A file is stored as soon as it is chosen, so one that is later removed, or
+belongs to a questionnaire never sent, stays in the bucket until deleted.
+
 ## Running it
 
 ```sh
@@ -89,4 +100,5 @@ pnpm dev          # add --local to `pnpm invite` to make links for it
 pnpm run deploy   # build, deploy, and bring the database up to date
 ```
 
-The first deploy creates the D1 database `qa` and attaches `qa.jin.mx`.
+The first deploy creates the D1 database `qa` and the R2 bucket `qa-uploads`,
+and attaches `qa.jin.mx`. R2 has to be enabled on the Cloudflare account first.

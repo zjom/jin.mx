@@ -555,6 +555,108 @@ input[type="range"]:focus-visible::-webkit-slider-thumb {
   outline-offset: 0.25rem;
 }
 
+/* --- files ---------------------------------------------------------------- */
+
+.file {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 1rem;
+  align-items: baseline;
+  padding: 0.875rem 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 1.125rem;
+  list-style: none;
+}
+
+.file:first-child {
+  border-top: 1px solid var(--line);
+}
+
+.fname {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fsize {
+  color: var(--mute);
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.fremove {
+  position: relative;
+  color: var(--mute);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.fremove::before {
+  content: "";
+  position: absolute;
+  inset: -0.75rem;
+}
+
+.fremove:hover,
+.fremove:focus-visible {
+  color: var(--ink);
+  outline: none;
+}
+
+/* While a file is on its way, its underline fills */
+.file.is-sending {
+  color: var(--mute);
+}
+
+.file.is-sending .fremove {
+  visibility: hidden;
+}
+
+.file.is-sending::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 -1px;
+  height: 1px;
+  background: var(--ink);
+  transform: scaleX(var(--p, 0));
+  transform-origin: left;
+  transition: transform 0.2s linear;
+}
+
+.pick {
+  display: inline-block;
+  padding-bottom: 0.375rem;
+  border-bottom: 1px solid var(--ink);
+  font-size: 1.125rem;
+  cursor: pointer;
+}
+
+.pick[hidden] {
+  display: none;
+}
+
+.filelist:not(:empty) + .pick {
+  margin-top: 1.5rem;
+  border-bottom-color: var(--line);
+  color: var(--mute);
+}
+
+.pick:has(:focus-visible),
+.files.is-over .pick {
+  border-bottom-width: 2px;
+  border-bottom-color: var(--ink);
+  color: var(--ink);
+}
+
+.filenote {
+  margin-top: 1rem;
+  color: var(--mute);
+  font-size: 0.8125rem;
+}
+
 /* --- the last card ------------------------------------------------------- */
 
 .send {

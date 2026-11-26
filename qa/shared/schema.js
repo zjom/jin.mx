@@ -43,6 +43,8 @@
  * @property {OptionDef[]} [columns] matrix
  * @property {string} [earliest] date, yyyy-mm-dd
  * @property {string} [latest] date, yyyy-mm-dd
+ * @property {string[]} [accept] file: extensions allowed, without the dot
+ * @property {number} [maxSize] file: megabytes each
  *
  * @typedef {object} Definition
  * @property {string} title
@@ -51,6 +53,7 @@
  * @property {{ title?: string, body?: string, label?: string }} [submit]
  * @property {{ title?: string, body?: string }} [outro]
  *
+ * @typedef {{ key: string, name: string, size: number, type: string }} StoredFile
  * @typedef {Record<string, unknown>} Answers
  * @typedef {{ id: string, message: string }} Problem
  */
@@ -75,6 +78,7 @@ export const TYPES = [
   "time",
   "rank",
   "matrix",
+  "file",
 ];
 
 const WITH_OPTIONS = ["choice", "multi", "select", "rank"];
@@ -101,6 +105,35 @@ export const rangeOf = (q) => {
   if (q.type === "rating") return { min: 1, max: q.max ?? 5, step: 1 };
   if (q.type === "scale") return { min: q.min ?? 0, max: q.max ?? 10, step: 1 };
   return { min: q.min ?? 0, max: q.max ?? 100, step: q.step ?? 1 };
+};
+
+const MAX_FILE_MB = 25;
+const DEFAULT_ACCEPT =
+  "pdf png jpg jpeg gif webp heic svg txt csv md rtf doc docx xls xlsx ppt pptx key pages numbers zip".split(" ");
+
+/**
+ * @param {Question} q a file question
+ * @returns {{ max: number, maxBytes: number, accept: string[], open: boolean }} open: accept was left to the default
+ */
+export const fileRules = (q) => ({
+  max: q.max ?? 1,
+  maxBytes: Math.min(q.maxSize ?? 10, MAX_FILE_MB) * 1024 * 1024,
+  accept: (q.accept ?? DEFAULT_ACCEPT).map((e) => e.toLowerCase().replace(/^\./, "")),
+  open: !q.accept,
+});
+
+/**
+ * @param {Question} q a file question
+ * @param {{ name: string, size: number }} file
+ * @returns {string | null} why this file cannot be taken
+ */
+export const fileProblem = (q, file) => {
+  const { maxBytes, accept } = fileRules(q);
+  const extension = file.name.includes(".") ? file.name.slice(file.name.lastIndexOf(".") + 1).toLowerCase() : "";
+  if (!accept.includes(extension)) return "That kind of file can’t be added here.";
+  if (file.size > maxBytes) return `That file is over ${maxBytes / 1024 / 1024} MB.`;
+  if (!(file.size > 0)) return "That file is empty.";
+  return null;
 };
 
 /** @param {unknown} v the free text of an "other" option, if that is what v is */
@@ -260,6 +293,22 @@ const checkValue = (q, v) => {
       if (!ok) return bad;
       return q.required && rows.some((r) => !(r in v)) ? "Please answer every row." : null;
     }
+    case "file": {
+      if (!Array.isArray(v)) return bad;
+      const ok = v.every(
+        (f) =>
+          isRecord(f) &&
+          typeof f.key === "string" &&
+          /^[\w/-]{1,200}$/.test(f.key) &&
+          typeof f.name === "string" &&
+          f.name.length <= 255 &&
+          typeof f.size === "number" &&
+          typeof f.type === "string",
+      );
+      if (!ok || new Set(v.map((f) => f.key)).size !== v.length) return bad;
+      const { max } = fileRules(q);
+      return v.length > max ? `No more than ${max}, please.` : null;
+    }
     default:
       return null;
   }
@@ -339,6 +388,7 @@ export const lint = (def) => {
       if (!(min < max) || !(step > 0)) err("min must be below max, and step above 0");
       if (q.type !== "slider" && max - min > 10) err("at most 11 steps fit on a screen");
     }
+    if (q.type === "file" && q.maxSize > MAX_FILE_MB) err(`maxSize can be at most ${MAX_FILE_MB}`);
     if (q.showIf !== undefined) {
       if (!isRecord(q.showIf) || !seen.has(q.showIf.id)) err("showIf.id must name an earlier question");
     }

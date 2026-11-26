@@ -3,14 +3,15 @@
 // One control per question type. Each takes the question, its saved answer
 // and a setter, and returns the element to place under the title
 
-import { rangeOf, toOptions, toRows } from "../shared/schema.js";
+import { fileProblem, fileRules, rangeOf, toOptions, toRows } from "../shared/schema.js";
 import { h } from "./dom.js";
 
 /**
  * @typedef {import("../shared/schema.js").Question} Question
  * @typedef {import("../shared/schema.js").Option} Option
  * @typedef {(value: unknown) => void} Setter
- * @typedef {(q: Question, value: any, set: Setter, labelId: string) => HTMLElement | null} Field
+ * @typedef {import("./session.js").Session["upload"]} Upload
+ * @typedef {(q: Question, value: any, set: Setter, labelId: string, upload: Upload) => HTMLElement | null} Field
  */
 
 const LETTERS = "abcdefghijklmnopqrstuvwxyz";
@@ -370,6 +371,130 @@ const matrix = (q, value, set, labelId) => {
   );
 };
 
+/** @param {number} bytes */
+const sizeOf = (bytes) =>
+  bytes < 1024 * 1024 ? `${Math.max(1, Math.round(bytes / 1024))} KB` : `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+
+/** @type {Field} */
+const file = (q, value, set, labelId, upload) => {
+  const { max, maxBytes, accept, open } = fileRules(q);
+  /** @type {import("../shared/schema.js").StoredFile[]} */
+  let stored = Array.isArray(value) ? [...value] : [];
+  let sending = 0;
+
+  const list = h("ul", { class: "filelist" });
+  const note = h("p", { class: "filenote", role: "status" });
+  const input = h("input", {
+    class: "sr",
+    type: "file",
+    multiple: max > 1,
+    accept: accept.map((e) => `.${e}`).join(","),
+    "aria-labelledby": labelId,
+  });
+  const pick = h("label", { class: "pick" }, input, h("span", {}));
+  const limits = `${open ? "" : `${accept.join(", ").toUpperCase()} · `}Up to ${maxBytes / 1024 / 1024} MB${max > 1 ? ` each · ${max} at most` : ""}`;
+  const wrap = h("div", { class: "files" }, list, pick, note);
+
+  const paint = () => {
+    const full = stored.length + sending >= max;
+    pick.hidden = full;
+    /** @type {HTMLElement} */ (pick.lastChild).textContent = stored.length + sending ? "Add another" : max > 1 ? "Choose files" : "Choose a file";
+    // The deck will not move on while this is set
+    if (sending) wrap.dataset.busy = "Still uploading. One moment.";
+    else delete wrap.dataset.busy;
+  };
+
+  /** @param {string} name @param {number} size @param {() => void} onRemove */
+  const row = (name, size, onRemove) => {
+    const el = h(
+      "li",
+      { class: "file" },
+      h("span", { class: "fname" }, name),
+      h("span", { class: "fsize" }, sizeOf(size)),
+      h("button", { class: "fremove", type: "button", "aria-label": `Remove ${name}`, onclick: onRemove }, "×"),
+    );
+    list.append(el);
+    return el;
+  };
+
+  /** @param {import("../shared/schema.js").StoredFile} f */
+  const show = (f) => {
+    const el = row(f.name, f.size, () => {
+      stored = stored.filter((x) => x !== f);
+      el.remove();
+      note.textContent = limits;
+      paint();
+      set(stored);
+    });
+    return el;
+  };
+
+  /** @param {File[]} files */
+  const add = async (files) => {
+    note.textContent = limits;
+    for (const f of files) {
+      if (stored.length + sending >= max) {
+        note.textContent = max > 1 ? `No more than ${max}, please.` : "Only one file here; remove it to choose another.";
+        break;
+      }
+      const problem = fileProblem(q, f);
+      if (problem) {
+        note.textContent = problem;
+        continue;
+      }
+      sending++;
+      const el = row(f.name, f.size, () => {});
+      el.classList.add("is-sending");
+      paint();
+      upload(q.id, f, (done) => el.style.setProperty("--p", String(done)))
+        .then((saved) => {
+          stored.push(saved);
+          el.replaceWith(show(saved));
+          el.remove();
+          set(stored);
+        })
+        .catch((e) => {
+          el.remove();
+          note.textContent =
+            e?.status === 429
+              ? "Too many uploads just now. Please try again in a minute."
+              : e?.status === 413 || e?.status === 415
+                ? (fileProblem(q, f) ?? "That file can’t be added here.")
+                : "That didn’t upload. Please try again.";
+        })
+        .finally(() => {
+          sending--;
+          paint();
+        });
+    }
+  };
+
+  input.addEventListener("change", () => {
+    add([...(input.files ?? [])]);
+    input.value = "";
+  });
+
+  // Files can also be dropped anywhere on the card, once it is in the page
+  requestAnimationFrame(() => {
+    const card = wrap.closest(".card");
+    card?.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      wrap.classList.add("is-over");
+    });
+    card?.addEventListener("dragleave", () => wrap.classList.remove("is-over"));
+    card?.addEventListener("drop", (e) => {
+      e.preventDefault();
+      wrap.classList.remove("is-over");
+      add([.../** @type {DragEvent} */ (e).dataTransfer?.files ?? []]);
+    });
+  });
+
+  stored.forEach(show);
+  note.textContent = limits;
+  paint();
+  return wrap;
+};
+
 /** @type {Record<string, Field>} */
 const FIELDS = {
   statement: () => null,
@@ -403,7 +528,9 @@ const FIELDS = {
   time: line({ type: "time" }),
   rank,
   matrix,
+  file,
 };
 
 /** @type {Field} */
-export const renderField = (q, value, set, labelId) => FIELDS[q.type](q, value, set, labelId);
+export const renderField = (q, value, set, labelId, upload) =>
+  FIELDS[q.type](q, value, set, labelId, upload);

@@ -8,39 +8,92 @@
       "title": "Every kind of question, one at a time.",
       "body": "Swipe left to move on and right to go back. Your progress is kept on this device until you send it."
     },
-    { "id": "name", "type": "text", "title": "What should we call you?", "required": true, "placeholder": "Your name" },
-    { "id": "email", "type": "email", "title": "Where can we reach you?", "required": true },
-    { "id": "site", "type": "url", "title": "Do you have a website?" },
-    { "id": "phone", "type": "tel", "title": "And a phone number?", "body": "Only if you would rather talk." },
+    {
+      "id": "name",
+      "type": "text",
+      "title": "What should we call you?",
+      "required": true,
+      "placeholder": "Your name"
+    },
+    {
+      "id": "email",
+      "type": "email",
+      "title": "Where can we reach you?",
+      "required": true
+    },
+    {
+      "id": "site",
+      "type": "url",
+      "title": "Do you have a website?"
+    },
+    {
+      "id": "phone",
+      "type": "tel",
+      "title": "And a phone number?",
+      "body": "Only if you would rather talk."
+    },
     {
       "id": "kind",
       "type": "choice",
       "title": "What brings you here?",
       "required": true,
       "other": true,
-      "options": ["A new product", "A redesign", "Ongoing support", "Just curious"]
+      "options": [
+        "A new product",
+        "A redesign",
+        "Ongoing support",
+        "Just curious"
+      ]
     },
     {
       "id": "curious",
       "type": "long",
       "title": "What are you curious about?",
-      "showIf": { "id": "kind", "equals": "Just curious" }
+      "showIf": {
+        "id": "kind",
+        "equals": "Just curious"
+      }
     },
     {
       "id": "platforms",
       "type": "multi",
       "title": "Where should it live?",
       "body": "Choose as many as apply.",
-      "options": ["Web", "iOS", "Android", "Desktop"]
+      "options": [
+        "Web",
+        "iOS",
+        "Android",
+        "Desktop"
+      ]
     },
     {
       "id": "country",
       "type": "select",
       "title": "Where are you based?",
-      "options": ["Australia", "Canada", "Germany", "Japan", "Mexico", "United Kingdom", "United States", "Elsewhere"]
+      "options": [
+        "Australia",
+        "Canada",
+        "Germany",
+        "Japan",
+        "Mexico",
+        "United Kingdom",
+        "United States",
+        "Elsewhere"
+      ]
     },
-    { "id": "existing", "type": "boolean", "title": "Is there something already built?", "required": true },
-    { "id": "team", "type": "number", "title": "How many people are on your team?", "integer": true, "min": 1 },
+    {
+      "id": "existing",
+      "type": "boolean",
+      "title": "Is there something already built?",
+      "required": true
+    },
+    {
+      "id": "team",
+      "type": "number",
+      "title": "How many people are on your team?",
+      "integer": true,
+      "min": 1
+    },
     {
       "id": "budget",
       "type": "slider",
@@ -50,37 +103,94 @@
       "step": 5,
       "prefix": "$",
       "suffix": "k",
-      "labels": ["Lean", "Generous"]
+      "labels": [
+        "Lean",
+        "Generous"
+      ]
     },
-    { "id": "start", "type": "date", "title": "When would you like to begin?" },
-    { "id": "call", "type": "time", "title": "What time suits a call?" },
+    {
+      "id": "start",
+      "type": "date",
+      "title": "When would you like to begin?"
+    },
+    {
+      "id": "call",
+      "type": "time",
+      "title": "What time suits a call?"
+    },
     {
       "id": "priorities",
       "type": "rank",
       "title": "Put these in order of importance.",
       "body": "Tap them from most to least important.",
-      "options": ["Speed", "Polish", "Cost", "Flexibility"]
+      "options": [
+        "Speed",
+        "Polish",
+        "Cost",
+        "Flexibility"
+      ]
     },
     {
       "id": "feelings",
       "type": "matrix",
       "title": "How true are these of your current product?",
       "rows": [
-        { "id": "clear", "label": "It is clear" },
-        { "id": "fast", "label": "It is fast" },
-        { "id": "loved", "label": "People love it" }
+        {
+          "id": "clear",
+          "label": "It is clear"
+        },
+        {
+          "id": "fast",
+          "label": "It is fast"
+        },
+        {
+          "id": "loved",
+          "label": "People love it"
+        }
       ],
-      "columns": ["Not at all", "A little", "Somewhat", "Mostly", "Entirely"]
+      "columns": [
+        "Not at all",
+        "A little",
+        "Somewhat",
+        "Mostly",
+        "Entirely"
+      ]
     },
-    { "id": "confidence", "type": "rating", "title": "How confident are you in the plan?" },
+    {
+      "id": "confidence",
+      "type": "rating",
+      "title": "How confident are you in the plan?"
+    },
     {
       "id": "recommend",
       "type": "scale",
       "title": "How likely are you to recommend this to a friend?",
       "required": true,
-      "labels": ["Not at all", "Certainly"]
+      "labels": [
+        "Not at all",
+        "Certainly"
+      ]
     },
-    { "id": "notes", "type": "long", "title": "Anything else we should know?", "placeholder": "Take all the room you need" },
+    {
+      "id": "brief",
+      "type": "file",
+      "title": "Is there a brief or a sketch you can share?",
+      "body": "Drop files here, or choose them.",
+      "max": 3,
+      "maxSize": 10,
+      "accept": [
+        "pdf",
+        "png",
+        "jpg",
+        "jpeg"
+      ]
+    },
+    {
+      "id": "notes",
+      "type": "long",
+      "title": "Anything else we should know?",
+      "placeholder": "Take all the room you need"
+    },
     {
       "id": "consent",
       "type": "consent",
@@ -90,5 +200,8 @@
       "required": true
     }
   ],
-  "outro": { "title": "Thank you.", "body": "We will be in touch shortly." }
+  "outro": {
+    "title": "Thank you.",
+    "body": "We will be in touch shortly."
+  }
 }

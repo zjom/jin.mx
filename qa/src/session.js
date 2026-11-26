@@ -21,6 +21,7 @@
  * @property {() => void} flush send anything unsaved now; the page is going away
  * @property {(answers: Answers) => Promise<{ ok: true } | { ok: false, problem: Problem }>} submit
  * @property {(fn: (online: boolean) => void) => void} onStatus
+ * @property {(questionId: string, file: File, onProgress: (done: number) => void) => Promise<import("../shared/schema.js").StoredFile>} upload
  */
 
 const SAVE_DELAY = 600;
@@ -49,6 +50,28 @@ const api = async (method, url, body) => {
   if (!res.ok && res.status !== 422) throw new HttpError(res.status);
   return res.json();
 };
+
+/**
+ * Sends one file, reporting how much has gone. fetch cannot report that
+ * @param {string} url
+ * @param {File} file
+ * @param {(done: number) => void} onProgress 0 to 1
+ * @returns {Promise<import("../shared/schema.js").StoredFile>}
+ */
+const sendFile = (url, file, onProgress) =>
+  new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", url);
+    xhr.setRequestHeader("content-type", file.type || "application/octet-stream");
+    xhr.setRequestHeader("x-file-name", encodeURIComponent(file.name));
+    xhr.upload.onprogress = (e) => e.lengthComputable && onProgress(e.loaded / e.total);
+    xhr.onload = () => {
+      if (xhr.status !== 200) return reject(new HttpError(xhr.status));
+      resolve(JSON.parse(xhr.responseText).file);
+    };
+    xhr.onerror = () => reject(new HttpError(0));
+    xhr.send(file);
+  });
 
 /** @param {string} key */
 const read = (key) => {
@@ -89,6 +112,7 @@ const openGeneral = async (slug) => {
       return result;
     },
     onStatus: () => {},
+    upload: (id, file, onProgress) => sendFile(`${url}/files/${encodeURIComponent(id)}`, file, onProgress),
   };
 };
 
@@ -177,6 +201,7 @@ const openInvite = async (token) => {
     onStatus: (fn) => {
       report = fn;
     },
+    upload: (id, file, onProgress) => sendFile(`${url}/files/${encodeURIComponent(id)}`, file, onProgress),
   };
 };
 
