@@ -1,54 +1,118 @@
 {
-  "title": "A short tour",
+  "title": {
+    "en": "A short tour",
+    "zh": "快速导览"
+  },
+  "languages": [
+    "en",
+    "zh"
+  ],
   "questions": [
     {
       "id": "welcome",
       "type": "statement",
-      "eyebrow": "A short tour",
-      "title": "Every kind of question, one at a time.",
-      "body": "Swipe left to move on and right to go back. Your progress is kept on this device until you send it."
+      "eyebrow": {
+        "en": "A short tour",
+        "zh": "快速导览"
+      },
+      "title": {
+        "en": "Every kind of question, one at a time.",
+        "zh": "每一种题型，逐一为您展示。"
+      },
+      "body": {
+        "en": "Swipe left to move on and right to go back. Your progress is kept on this device until you send it.",
+        "zh": "向左滑动进入下一题，向右滑动返回上一题。在您提交之前，填写进度会保存在这台设备上。"
+      }
     },
     {
       "id": "name",
       "type": "text",
-      "title": "What should we call you?",
+      "title": {
+        "en": "What should we call you?",
+        "zh": "我们该怎么称呼您？"
+      },
       "required": true,
-      "placeholder": "Your name"
+      "placeholder": {
+        "en": "Your name",
+        "zh": "您的姓名"
+      }
     },
     {
       "id": "email",
       "type": "email",
-      "title": "Where can we reach you?",
+      "title": {
+        "en": "Where can we reach you?",
+        "zh": "我们可以通过哪个邮箱联系您？"
+      },
       "required": true
     },
     {
       "id": "site",
       "type": "url",
-      "title": "Do you have a website?"
+      "title": {
+        "en": "Do you have a website?",
+        "zh": "您有网站吗？"
+      }
     },
     {
       "id": "phone",
       "type": "tel",
-      "title": "And a phone number?",
-      "body": "Only if you would rather talk."
+      "title": {
+        "en": "And a phone number?",
+        "zh": "方便留个电话吗？"
+      },
+      "body": {
+        "en": "Only if you would rather talk.",
+        "zh": "如果您更愿意电话沟通的话。"
+      }
     },
     {
       "id": "kind",
       "type": "choice",
-      "title": "What brings you here?",
+      "title": {
+        "en": "What brings you here?",
+        "zh": "您这次来是为了什么？"
+      },
       "required": true,
       "other": true,
       "options": [
-        "A new product",
-        "A redesign",
-        "Ongoing support",
-        "Just curious"
+        {
+          "value": "A new product",
+          "label": {
+            "en": "A new product",
+            "zh": "开发新产品"
+          }
+        },
+        {
+          "value": "A redesign",
+          "label": {
+            "en": "A redesign",
+            "zh": "重新设计"
+          }
+        },
+        {
+          "value": "Ongoing support",
+          "label": {
+            "en": "Ongoing support",
+            "zh": "长期支持"
+          }
+        },
+        {
+          "value": "Just curious",
+          "label": {
+            "en": "Just curious",
+            "zh": "只是想了解一下"
+          }
+        }
       ]
     },
     {
       "id": "curious",
       "type": "long",
-      "title": "What are you curious about?",
+      "title": {
+        "en": "What are you curious about?",
+        "zh": "您想了解些什么？"
+      },
       "showIf": {
         "id": "kind",
         "equals": "Just curious"
@@ -57,125 +121,317 @@
     {
       "id": "platforms",
       "type": "multi",
-      "title": "Where should it live?",
-      "body": "Choose as many as apply.",
+      "title": {
+        "en": "Where should it live?",
+        "zh": "它需要在哪些平台上使用？"
+      },
+      "body": {
+        "en": "Choose as many as apply.",
+        "zh": "可多选。"
+      },
       "options": [
-        "Web",
-        "iOS",
-        "Android",
-        "Desktop"
+        {
+          "value": "Web",
+          "label": {
+            "en": "Web",
+            "zh": "网页"
+          }
+        },
+        {
+          "value": "iOS",
+          "label": {
+            "en": "iOS",
+            "zh": "iOS"
+          }
+        },
+        {
+          "value": "Android",
+          "label": {
+            "en": "Android",
+            "zh": "Android"
+          }
+        },
+        {
+          "value": "Desktop",
+          "label": {
+            "en": "Desktop",
+            "zh": "桌面端"
+          }
+        }
       ]
     },
     {
       "id": "country",
       "type": "select",
-      "title": "Where are you based?",
+      "title": {
+        "en": "Where are you based?",
+        "zh": "您在哪个国家或地区？"
+      },
       "options": [
-        "Australia",
-        "Canada",
-        "Germany",
-        "Japan",
-        "Mexico",
-        "United Kingdom",
-        "United States",
-        "Elsewhere"
+        {
+          "value": "Australia",
+          "label": {
+            "en": "Australia",
+            "zh": "澳大利亚"
+          }
+        },
+        {
+          "value": "Canada",
+          "label": {
+            "en": "Canada",
+            "zh": "加拿大"
+          }
+        },
+        {
+          "value": "Germany",
+          "label": {
+            "en": "Germany",
+            "zh": "德国"
+          }
+        },
+        {
+          "value": "Japan",
+          "label": {
+            "en": "Japan",
+            "zh": "日本"
+          }
+        },
+        {
+          "value": "Mexico",
+          "label": {
+            "en": "Mexico",
+            "zh": "墨西哥"
+          }
+        },
+        {
+          "value": "United Kingdom",
+          "label": {
+            "en": "United Kingdom",
+            "zh": "英国"
+          }
+        },
+        {
+          "value": "United States",
+          "label": {
+            "en": "United States",
+            "zh": "美国"
+          }
+        },
+        {
+          "value": "Elsewhere",
+          "label": {
+            "en": "Elsewhere",
+            "zh": "其他地区"
+          }
+        }
       ]
     },
     {
       "id": "existing",
       "type": "boolean",
-      "title": "Is there something already built?",
+      "title": {
+        "en": "Is there something already built?",
+        "zh": "目前已经有做好的东西了吗？"
+      },
       "required": true
     },
     {
       "id": "team",
       "type": "number",
-      "title": "How many people are on your team?",
+      "title": {
+        "en": "How many people are on your team?",
+        "zh": "您的团队有多少人？"
+      },
       "integer": true,
       "min": 1
     },
     {
       "id": "budget",
       "type": "slider",
-      "title": "Roughly, what is the budget?",
+      "title": {
+        "en": "Roughly, what is the budget?",
+        "zh": "预算大概是多少？"
+      },
       "min": 5,
       "max": 100,
       "step": 5,
       "prefix": "$",
       "suffix": "k",
       "labels": [
-        "Lean",
-        "Generous"
+        {
+          "en": "Lean",
+          "zh": "精简"
+        },
+        {
+          "en": "Generous",
+          "zh": "充裕"
+        }
       ]
     },
     {
       "id": "start",
       "type": "date",
-      "title": "When would you like to begin?"
+      "title": {
+        "en": "When would you like to begin?",
+        "zh": "您希望什么时候开始？"
+      }
     },
     {
       "id": "call",
       "type": "time",
-      "title": "What time suits a call?"
+      "title": {
+        "en": "What time suits a call?",
+        "zh": "什么时间方便通话？"
+      }
     },
     {
       "id": "priorities",
       "type": "rank",
-      "title": "Put these in order of importance.",
-      "body": "Tap them from most to least important.",
+      "title": {
+        "en": "Put these in order of importance.",
+        "zh": "请按重要程度排序。"
+      },
+      "body": {
+        "en": "Tap them from most to least important.",
+        "zh": "从最重要到最不重要，依次点选。"
+      },
       "options": [
-        "Speed",
-        "Polish",
-        "Cost",
-        "Flexibility"
+        {
+          "value": "Speed",
+          "label": {
+            "en": "Speed",
+            "zh": "速度"
+          }
+        },
+        {
+          "value": "Polish",
+          "label": {
+            "en": "Polish",
+            "zh": "精致程度"
+          }
+        },
+        {
+          "value": "Cost",
+          "label": {
+            "en": "Cost",
+            "zh": "成本"
+          }
+        },
+        {
+          "value": "Flexibility",
+          "label": {
+            "en": "Flexibility",
+            "zh": "灵活性"
+          }
+        }
       ]
     },
     {
       "id": "feelings",
       "type": "matrix",
-      "title": "How true are these of your current product?",
+      "title": {
+        "en": "How true are these of your current product?",
+        "zh": "以下说法在多大程度上符合您现有的产品？"
+      },
       "rows": [
         {
           "id": "clear",
-          "label": "It is clear"
+          "label": {
+            "en": "It is clear",
+            "zh": "清晰易懂"
+          }
         },
         {
           "id": "fast",
-          "label": "It is fast"
+          "label": {
+            "en": "It is fast",
+            "zh": "速度快"
+          }
         },
         {
           "id": "loved",
-          "label": "People love it"
+          "label": {
+            "en": "People love it",
+            "zh": "深受用户喜爱"
+          }
         }
       ],
       "columns": [
-        "Not at all",
-        "A little",
-        "Somewhat",
-        "Mostly",
-        "Entirely"
+        {
+          "value": "Not at all",
+          "label": {
+            "en": "Not at all",
+            "zh": "完全不符合"
+          }
+        },
+        {
+          "value": "A little",
+          "label": {
+            "en": "A little",
+            "zh": "略微符合"
+          }
+        },
+        {
+          "value": "Somewhat",
+          "label": {
+            "en": "Somewhat",
+            "zh": "部分符合"
+          }
+        },
+        {
+          "value": "Mostly",
+          "label": {
+            "en": "Mostly",
+            "zh": "基本符合"
+          }
+        },
+        {
+          "value": "Entirely",
+          "label": {
+            "en": "Entirely",
+            "zh": "完全符合"
+          }
+        }
       ]
     },
     {
       "id": "confidence",
       "type": "rating",
-      "title": "How confident are you in the plan?"
+      "title": {
+        "en": "How confident are you in the plan?",
+        "zh": "您对这个计划有多大信心？"
+      }
     },
     {
       "id": "recommend",
       "type": "scale",
-      "title": "How likely are you to recommend this to a friend?",
+      "title": {
+        "en": "How likely are you to recommend this to a friend?",
+        "zh": "您有多大可能把它推荐给朋友？"
+      },
       "required": true,
       "labels": [
-        "Not at all",
-        "Certainly"
+        {
+          "en": "Not at all",
+          "zh": "完全不会"
+        },
+        {
+          "en": "Certainly",
+          "zh": "一定会"
+        }
       ]
     },
     {
       "id": "brief",
       "type": "file",
-      "title": "Is there a brief or a sketch you can share?",
-      "body": "Drop files here, or choose them.",
+      "title": {
+        "en": "Is there a brief or a sketch you can share?",
+        "zh": "有可以提供的需求说明或草图吗？"
+      },
+      "body": {
+        "en": "Drop files here, or choose them.",
+        "zh": "将文件拖到此处，或点击选择。"
+      },
       "max": 3,
       "maxSize": 10,
       "accept": ["pdf", "png", "jpg", "jpeg", "docx", "pptx", "md", "csv", "xml", "html"]
@@ -183,20 +439,41 @@
     {
       "id": "notes",
       "type": "long",
-      "title": "Anything else we should know?",
-      "placeholder": "Take all the room you need"
+      "title": {
+        "en": "Anything else we should know?",
+        "zh": "还有什么需要我们了解的吗？"
+      },
+      "placeholder": {
+        "en": "Take all the room you need",
+        "zh": "想写多少都可以"
+      }
     },
     {
       "id": "consent",
       "type": "consent",
-      "title": "May we keep your answers on file?",
-      "body": "We use them only to prepare for our conversation.",
-      "label": "Yes, that is fine",
+      "title": {
+        "en": "May we keep your answers on file?",
+        "zh": "我们可以留存您的回答吗？"
+      },
+      "body": {
+        "en": "We use them only to prepare for our conversation.",
+        "zh": "仅用于为我们之后的沟通做准备。"
+      },
+      "label": {
+        "en": "Yes, that is fine",
+        "zh": "可以，没问题"
+      },
       "required": true
     }
   ],
   "outro": {
-    "title": "Thank you.",
-    "body": "We will be in touch shortly."
+    "title": {
+      "en": "Thank you.",
+      "zh": "谢谢。"
+    },
+    "body": {
+      "en": "We will be in touch shortly.",
+      "zh": "我们稍后会与您联系。"
+    }
   }
 }

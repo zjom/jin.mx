@@ -519,3 +519,15 @@ export const lint = (def) => {
   });
   return errors;
 };
+
+// Addresses the site keeps for itself
+const TAKEN = ["for", "api", "admin"];
+
+/**
+ * @param {string} slug a questionnaire's name, which is also its address
+ * @returns {string | null} what is wrong with it
+ */
+export const slugProblem = (slug) => {
+  if (!/^[a-z0-9][a-z0-9-]{0,63}$/.test(slug)) return "name must be lowercase letters, digits and -";
+  return TAKEN.includes(slug) ? "this name is taken by the site itself" : null;
+};

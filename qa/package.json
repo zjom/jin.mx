@@ -8,9 +8,10 @@
     "check": "node scripts/check.js",
     "build": "node scripts/check.js && vite build",
     "preview": "pnpm run build && wrangler dev",
-    "deploy": "pnpm run build && wrangler deploy && wrangler d1 migrations apply qa --remote",
+    "deploy": "pnpm run build && wrangler d1 migrations apply qa --remote && wrangler deploy",
     "db:local": "wrangler d1 migrations apply qa --local",
-    "invite": "node scripts/invite.js"
+    "invite": "node scripts/invite.js",
+    "push": "node scripts/push.js"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.3.0",

@@ -2,30 +2,18 @@
 
 import { fileProblem, fileRules, firstProblem, languagesOf, resolve } from "../shared/schema.js";
 import { words } from "../shared/words.js";
+import { identify } from "./access.js";
+import { admin } from "./admin.js";
+import { CURRENT, fail, json, parse } from "./http.js";
 
 /**
  * @typedef {import("../shared/schema.js").Definition} Definition
  * @typedef {{ limit: (o: { key: string }) => Promise<{ success: boolean }> }} Limiter
- * @typedef {{ DB: any, FILES: any, SUBMIT_LIMIT?: Limiter, UPLOAD_LIMIT?: Limiter }} Env
+ * @typedef {{ DB: any, FILES: any, ASSETS: { fetch: (r: Request) => Promise<Response> }, SUBMIT_LIMIT?: Limiter, UPLOAD_LIMIT?: Limiter } & import("./access.js").AccessEnv} Env
  */
-
-// Every file in questionnaires/ is a questionnaire; its name is its slug
-const files = /** @type {Record<string, Definition>} */ (
-  import.meta.glob("../questionnaires/*.json", { eager: true, import: "default" })
-);
-const definitions = new Map(
-  Object.entries(files).map(([path, def]) => [path.replace(/^.*\/|\.json$/g, ""), def]),
-);
 
 const MAX_BODY = 64 * 1024;
 const TOKEN = /^[\w-]{16,64}$/;
-
-/** @param {unknown} data @param {number} [status] */
-const json = (data, status = 200) =>
-  Response.json(data, { status, headers: { "cache-control": "no-store" } });
-
-/** @param {number} status @param {string} error */
-const fail = (status, error) => json({ ok: false, error }, status);
 
 /**
  * @param {Request} request
@@ -59,15 +47,6 @@ const known = (def, answers) =>
   Object.fromEntries(
     def.questions.filter((q) => q.id in answers).map((q) => [q.id, answers[q.id]]),
   );
-
-/** @param {string} text */
-const parse = (text) => {
-  try {
-    return JSON.parse(text);
-  } catch {
-    return {};
-  }
-};
 
 /** @param {Request} request @param {Limiter | undefined} limiter */
 const allowed = async (request, limiter) =>
@@ -131,7 +110,12 @@ const missingFile = async (env, definition, answers, scope, lang) => {
  * @param {Request} request @param {Env} env @param {string} slug @param {string[]} rest
  */
 const general = async (request, env, slug, rest) => {
-  const definition = definitions.get(slug);
+  const found = await env.DB.prepare(
+    `SELECT q.revision, r.definition ${CURRENT} WHERE q.slug = ? AND q.archived_at IS NULL`,
+  )
+    .bind(slug)
+    .first();
+  const definition = /** @type {Definition | null} */ (found && JSON.parse(found.definition));
   if (!definition || definition.audience === "invite") return fail(404, "not found");
 
   const scope = `q/${slug}`;
@@ -150,13 +134,14 @@ const general = async (request, env, slug, rest) => {
   if (problem) return json({ ok: false, problem }, 422);
 
   await env.DB.prepare(
-    "INSERT INTO responses (id, questionnaire, answers, lang, submitted_at) VALUES (?, ?, ?, ?, ?)",
+    "INSERT INTO responses (id, questionnaire, answers, lang, revision, submitted_at) VALUES (?, ?, ?, ?, ?, ?)",
   )
     .bind(
       crypto.randomUUID(),
       slug,
       JSON.stringify(resolve(definition, sent).answers),
       lang,
+      found.revision,
       new Date().toISOString(),
     )
     .run();
@@ -169,13 +154,18 @@ const general = async (request, env, slug, rest) => {
  */
 const invite = async (request, env, token, rest) => {
   if (!TOKEN.test(token)) return fail(404, "not found");
+  // A link that was revoked, or whose questionnaire was archived, is not found
   const row = await env.DB.prepare(
-    "SELECT questionnaire, customer, vars, answers, position, lang, updated_at, submitted_at FROM invites WHERE token = ?",
+    `SELECT i.questionnaire, i.customer, i.vars, i.answers, i.position, i.lang, i.updated_at, i.submitted_at,
+       q.revision, r.definition
+     FROM invites i JOIN questionnaires q ON q.slug = i.questionnaire AND q.archived_at IS NULL
+     JOIN revisions r ON r.slug = q.slug AND r.revision = q.revision
+     WHERE i.token = ? AND i.revoked_at IS NULL`,
   )
     .bind(token)
     .first();
-  const definition = row && definitions.get(row.questionnaire);
-  if (!definition) return fail(404, "not found");
+  if (!row) return fail(404, "not found");
+  const definition = /** @type {Definition} */ (JSON.parse(row.definition));
 
   const scope = `i/${token}`;
   if (rest[0] === "files") {
@@ -225,9 +215,9 @@ const invite = async (request, env, token, rest) => {
     (await missingFile(env, definition, resolve(definition, sent).answers, scope, said));
   if (problem) return json({ ok: false, problem }, 422);
   await env.DB.prepare(
-    "UPDATE invites SET answers = ?, position = NULL, lang = ?, updated_at = ?, submitted_at = ? WHERE token = ? AND submitted_at IS NULL",
+    "UPDATE invites SET answers = ?, position = NULL, lang = ?, revision = ?, updated_at = ?, submitted_at = ? WHERE token = ? AND submitted_at IS NULL",
   )
-    .bind(JSON.stringify(resolve(definition, sent).answers), said, now, now, token)
+    .bind(JSON.stringify(resolve(definition, sent).answers), said, row.revision, now, now, token)
     .run();
   return json({ ok: true });
 };
@@ -235,11 +225,20 @@ const invite = async (request, env, token, rest) => {
 export default {
   /** @param {Request} request @param {Env} env */
   async fetch(request, env) {
-    const [, api, kind, id, ...rest] = new URL(request.url).pathname.split("/");
-    // /api/<kind>/<id>, or /api/<kind>/<id>/files/<question> to add a file
-    const shaped = rest.length === 0 || (rest.length === 2 && rest[0] === "files");
-    if (api !== "api" || !id || !shaped) return fail(404, "not found");
+    const url = new URL(request.url);
+    const [, api, kind, id, ...rest] = url.pathname.split("/");
     try {
+      // /admin and /api/admin are for whoever Cloudflare Access let in
+      if (api === "admin" || (api === "api" && kind === "admin")) {
+        const who = await identify(request, env);
+        if (!who) return fail(403, "forbidden");
+        if (api === "api") return await admin(request, env, who, id ? [id, ...rest] : []);
+        // The page is one address; where it is inside itself comes after the #
+        return url.pathname === "/admin" ? env.ASSETS.fetch(request) : Response.redirect(`${url.origin}/admin`, 302);
+      }
+      // /api/<kind>/<id>, or /api/<kind>/<id>/files/<question> to add a file
+      const shaped = rest.length === 0 || (rest.length === 2 && rest[0] === "files");
+      if (api !== "api" || !id || !shaped) return fail(404, "not found");
       if (kind === "q") return await general(request, env, id, rest);
       if (kind === "i") return await invite(request, env, id, rest);
     } catch (e) {

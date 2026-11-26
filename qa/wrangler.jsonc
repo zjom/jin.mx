@@ -7,9 +7,20 @@
     "enabled": true,
   },
   "routes": [{ "pattern": "qa.jin.mx", "custom_domain": true }],
+  "workers_dev": false,
   "assets": {
+    "binding": "ASSETS",
     "not_found_handling": "single-page-application",
-    "run_worker_first": ["/api/*"],
+    "run_worker_first": ["/api/*", "/admin", "/admin/*"],
+  },
+  // /admin is behind Cloudflare Access, and the worker checks Access's
+  // signature on every request to it. Until both of these are filled in from
+  // the Access application, /admin answers no one
+  "vars": {
+    // <team>.cloudflareaccess.com
+    "ACCESS_TEAM_DOMAIN": "",
+    // The application's "Application Audience (AUD) Tag"
+    "ACCESS_AUD": "",
   },
   // Customer progress and every submission. With no database_id, wrangler
   // creates the database on the first deploy
@@ -36,4 +47,7 @@
     },
   ],
   "preview_urls": false,
+  // `pnpm preview` would otherwise tell the worker it is at qa.jin.mx, and
+  // /admin lets no one in there without Access
+  "dev": { "host": "localhost" },
 }
