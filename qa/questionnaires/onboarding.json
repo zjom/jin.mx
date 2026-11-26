@@ -1,0 +1,41 @@
+{
+  "title": "Getting started",
+  "audience": "invite",
+  "questions": [
+    {
+      "id": "welcome",
+      "type": "statement",
+      "eyebrow": "For {{customer}}",
+      "title": "A few questions before we begin.",
+      "body": "This should take about five minutes. Your answers are saved as you go, so you can stop and return to this link at any time."
+    },
+    { "id": "contact", "type": "text", "title": "Who is our main point of contact at {{customer}}?", "required": true, "placeholder": "Full name" },
+    { "id": "email", "type": "email", "title": "What is the best email for them?", "required": true },
+    {
+      "id": "goal",
+      "type": "long",
+      "title": "What would make this project a success?",
+      "body": "A sentence or two is plenty.",
+      "required": true
+    },
+    {
+      "id": "cadence",
+      "type": "choice",
+      "title": "How often would you like to hear from us?",
+      "required": true,
+      "options": ["Every week", "Every two weeks", "At each milestone"]
+    },
+    {
+      "id": "channels",
+      "type": "multi",
+      "title": "How do you prefer to talk?",
+      "options": ["Email", "Video call", "Slack", "Phone"],
+      "other": true
+    },
+    { "id": "deadline", "type": "boolean", "title": "Is there a date this has to be done by?", "required": true },
+    { "id": "deadline_date", "type": "date", "title": "When is it?", "required": true, "showIf": { "id": "deadline", "equals": true } },
+    { "id": "notes", "type": "long", "title": "Is there anything else we should know?" }
+  ],
+  "submit": { "title": "That’s everything.", "body": "Swipe back to review, or send your answers to us now.", "label": "Send" },
+  "outro": { "title": "Thank you.", "body": "We have everything we need from {{customer}} for now, and will be in touch shortly." }
+}
