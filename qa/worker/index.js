@@ -1,6 +1,7 @@
 // @ts-check
 
-import { fileProblem, fileRules, firstProblem, resolve } from "../shared/schema.js";
+import { fileProblem, fileRules, firstProblem, languagesOf, resolve } from "../shared/schema.js";
+import { words } from "../shared/words.js";
 
 /**
  * @typedef {import("../shared/schema.js").Definition} Definition
@@ -28,19 +29,26 @@ const fail = (status, error) => json({ ok: false, error }, status);
 
 /**
  * @param {Request} request
- * @returns {Promise<Record<string, unknown> | null>} the body's answers, or null if unusable
+ * @returns {Promise<{ answers: Record<string, unknown>, position: unknown, lang: unknown } | null>} the body, or null if unusable
  */
-const readAnswers = async (request) => {
+const readBody = async (request) => {
   const text = await request.text();
   if (text.length > MAX_BODY) return null;
   try {
     const body = JSON.parse(text);
     const a = body?.answers;
-    return typeof a === "object" && a !== null && !Array.isArray(a) ? a : null;
+    if (typeof a !== "object" || a === null || Array.isArray(a)) return null;
+    return { answers: a, position: body.position, lang: body.lang };
   } catch {
     return null;
   }
 };
+
+/**
+ * @param {Definition} def @param {unknown} lang what the page says it is showing
+ * @returns {string | null} that language, if the questionnaire is written in it
+ */
+const langIn = (def, lang) => (languagesOf(def).includes(/** @type {string} */ (lang)) ? /** @type {string} */ (lang) : null);
 
 /**
  * Only answers to questions that exist; nothing else reaches the database
@@ -103,15 +111,15 @@ const upload = async (request, env, definition, scope, questionId) => {
 /**
  * @param {Env} env @param {Definition} definition
  * @param {Record<string, unknown>} answers already checked for shape
- * @param {string} scope
+ * @param {string} scope @param {string} lang
  * @returns {Promise<import("../shared/schema.js").Problem | null>} a file answer that names something we do not hold
  */
-const missingFile = async (env, definition, answers, scope) => {
+const missingFile = async (env, definition, answers, scope, lang) => {
   for (const q of definition.questions) {
     if (q.type !== "file") continue;
     for (const file of /** @type {{ key: string }[]} */ (answers[q.id] ?? [])) {
       if (!file.key.startsWith(`${scope}/${q.id}/`) || !(await env.FILES.head(file.key))) {
-        return { id: q.id, message: "Please add this file again." };
+        return { id: q.id, message: words(lang)("fileAgain") };
       }
     }
   }
@@ -132,20 +140,23 @@ const general = async (request, env, slug, rest) => {
   if (request.method !== "POST") return fail(405, "method not allowed");
 
   if (!(await allowed(request, env.SUBMIT_LIMIT))) return fail(429, "too many submissions");
-  const sent = await readAnswers(request);
-  if (!sent) return fail(400, "bad request");
+  const body = await readBody(request);
+  if (!body) return fail(400, "bad request");
+  const sent = body.answers;
+  const lang = langIn(definition, body.lang) ?? languagesOf(definition)[0];
   const problem =
-    firstProblem(definition, sent) ??
-    (await missingFile(env, definition, resolve(definition, sent).answers, scope));
+    firstProblem(definition, sent, lang) ??
+    (await missingFile(env, definition, resolve(definition, sent).answers, scope, lang));
   if (problem) return json({ ok: false, problem }, 422);
 
   await env.DB.prepare(
-    "INSERT INTO responses (id, questionnaire, answers, submitted_at) VALUES (?, ?, ?, ?)",
+    "INSERT INTO responses (id, questionnaire, answers, lang, submitted_at) VALUES (?, ?, ?, ?, ?)",
   )
     .bind(
       crypto.randomUUID(),
       slug,
       JSON.stringify(resolve(definition, sent).answers),
+      lang,
       new Date().toISOString(),
     )
     .run();
@@ -159,7 +170,7 @@ const general = async (request, env, slug, rest) => {
 const invite = async (request, env, token, rest) => {
   if (!TOKEN.test(token)) return fail(404, "not found");
   const row = await env.DB.prepare(
-    "SELECT questionnaire, customer, vars, answers, position, updated_at, submitted_at FROM invites WHERE token = ?",
+    "SELECT questionnaire, customer, vars, answers, position, lang, updated_at, submitted_at FROM invites WHERE token = ?",
   )
     .bind(token)
     .first();
@@ -178,6 +189,7 @@ const invite = async (request, env, token, rest) => {
       vars: { ...parse(row.vars), customer: row.customer },
       answers: row.submitted_at ? {} : parse(row.answers),
       position: row.position,
+      lang: langIn(definition, row.lang),
       updatedAt: row.updated_at,
       submitted: Boolean(row.submitted_at),
     });
@@ -185,18 +197,21 @@ const invite = async (request, env, token, rest) => {
   if (request.method !== "PUT" && request.method !== "POST") return fail(405, "method not allowed");
   if (row.submitted_at) return fail(409, "already submitted");
 
-  const sent = await readAnswers(request.clone());
-  if (!sent) return fail(400, "bad request");
+  const body = await readBody(request);
+  if (!body) return fail(400, "bad request");
+  const sent = body.answers;
+  // The language last used is kept, so the link opens in it on any device
+  const lang = langIn(definition, body.lang) ?? langIn(definition, row.lang);
   const now = new Date().toISOString();
 
   if (request.method === "PUT") {
-    const { position } = await request.json();
     await env.DB.prepare(
-      "UPDATE invites SET answers = ?, position = ?, updated_at = ? WHERE token = ? AND submitted_at IS NULL",
+      "UPDATE invites SET answers = ?, position = ?, lang = ?, updated_at = ? WHERE token = ? AND submitted_at IS NULL",
     )
       .bind(
         JSON.stringify(known(definition, sent)),
-        typeof position === "string" ? position.slice(0, 64) : null,
+        typeof body.position === "string" ? body.position.slice(0, 64) : null,
+        lang,
         now,
         token,
       )
@@ -204,14 +219,15 @@ const invite = async (request, env, token, rest) => {
     return json({ ok: true });
   }
 
+  const said = lang ?? languagesOf(definition)[0];
   const problem =
-    firstProblem(definition, sent) ??
-    (await missingFile(env, definition, resolve(definition, sent).answers, scope));
+    firstProblem(definition, sent, said) ??
+    (await missingFile(env, definition, resolve(definition, sent).answers, scope, said));
   if (problem) return json({ ok: false, problem }, 422);
   await env.DB.prepare(
-    "UPDATE invites SET answers = ?, position = NULL, updated_at = ?, submitted_at = ? WHERE token = ? AND submitted_at IS NULL",
+    "UPDATE invites SET answers = ?, position = NULL, lang = ?, updated_at = ?, submitted_at = ? WHERE token = ? AND submitted_at IS NULL",
   )
-    .bind(JSON.stringify(resolve(definition, sent).answers), now, now, token)
+    .bind(JSON.stringify(resolve(definition, sent).answers), said, now, now, token)
     .run();
   return json({ ok: true });
 };

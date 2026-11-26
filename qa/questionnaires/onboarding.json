@@ -1,67 +1,152 @@
 {
-  "title": "Getting started",
+  "title": {
+    "en": "Getting started",
+    "zh": "开始之前"
+  },
+  "languages": [
+    "en",
+    "zh"
+  ],
   "audience": "invite",
   "questions": [
     {
       "id": "welcome",
       "type": "statement",
-      "eyebrow": "For {{customer}}",
-      "title": "A few questions before we begin.",
-      "body": "This should take about five minutes. Your answers are saved as you go, so you can stop and return to this link at any time."
+      "eyebrow": {
+        "en": "For {{customer}}",
+        "zh": "致 {{customer}}"
+      },
+      "title": {
+        "en": "A few questions before we begin.",
+        "zh": "开始之前，想先问您几个问题。"
+      },
+      "body": {
+        "en": "This should take about five minutes. Your answers are saved as you go, so you can stop and return to this link at any time.",
+        "zh": "大约需要五分钟。您的回答会随时自动保存，可以中途离开，之后再通过此链接继续填写。"
+      }
     },
     {
       "id": "contact",
       "type": "text",
-      "title": "Who is our main point of contact at {{customer}}?",
+      "title": {
+        "en": "Who is our main point of contact at {{customer}}?",
+        "zh": "{{customer}} 的主要联系人是哪位？"
+      },
       "required": true,
-      "placeholder": "Full name"
+      "placeholder": {
+        "en": "Full name",
+        "zh": "姓名"
+      }
     },
     {
       "id": "email",
       "type": "email",
-      "title": "What is the best email for them?",
+      "title": {
+        "en": "What is the best email for them?",
+        "zh": "联系人常用的邮箱是？"
+      },
       "required": true
     },
     {
       "id": "goal",
       "type": "long",
-      "title": "What would make this project a success?",
-      "body": "A sentence or two is plenty.",
+      "title": {
+        "en": "What would make this project a success?",
+        "zh": "怎样才算这个项目成功？"
+      },
+      "body": {
+        "en": "A sentence or two is plenty.",
+        "zh": "一两句话就够了。"
+      },
       "required": true
     },
     {
       "id": "cadence",
       "type": "choice",
-      "title": "How often would you like to hear from us?",
+      "title": {
+        "en": "How often would you like to hear from us?",
+        "zh": "您希望我们多久向您汇报一次？"
+      },
       "required": true,
       "options": [
-        "Every week",
-        "Every two weeks",
-        "At each milestone"
+        {
+          "value": "Every week",
+          "label": {
+            "en": "Every week",
+            "zh": "每周"
+          }
+        },
+        {
+          "value": "Every two weeks",
+          "label": {
+            "en": "Every two weeks",
+            "zh": "每两周"
+          }
+        },
+        {
+          "value": "At each milestone",
+          "label": {
+            "en": "At each milestone",
+            "zh": "每个阶段节点"
+          }
+        }
       ]
     },
     {
       "id": "channels",
       "type": "multi",
-      "title": "How do you prefer to talk?",
+      "title": {
+        "en": "How do you prefer to talk?",
+        "zh": "您更喜欢用哪种方式沟通？"
+      },
       "options": [
-        "Email",
-        "Video call",
-        "Slack",
-        "Phone"
+        {
+          "value": "Email",
+          "label": {
+            "en": "Email",
+            "zh": "电子邮件"
+          }
+        },
+        {
+          "value": "Video call",
+          "label": {
+            "en": "Video call",
+            "zh": "视频会议"
+          }
+        },
+        {
+          "value": "Slack",
+          "label": {
+            "en": "Slack",
+            "zh": "Slack"
+          }
+        },
+        {
+          "value": "Phone",
+          "label": {
+            "en": "Phone",
+            "zh": "电话"
+          }
+        }
       ],
       "other": true
     },
     {
       "id": "deadline",
       "type": "boolean",
-      "title": "Is there a date this has to be done by?",
+      "title": {
+        "en": "Is there a date this has to be done by?",
+        "zh": "项目有必须完成的日期吗？"
+      },
       "required": true
     },
     {
       "id": "deadline_date",
       "type": "date",
-      "title": "When is it?",
+      "title": {
+        "en": "When is it?",
+        "zh": "是哪一天？"
+      },
       "required": true,
       "showIf": {
         "id": "deadline",
@@ -71,23 +156,44 @@
     {
       "id": "assets",
       "type": "file",
-      "title": "Do you have a logo or brand guidelines to share?",
+      "title": {
+        "en": "Do you have a logo or brand guidelines to share?",
+        "zh": "有可以提供的标志或品牌规范吗？"
+      },
       "max": 5,
       "maxSize": 20
     },
     {
       "id": "notes",
       "type": "long",
-      "title": "Is there anything else we should know?"
+      "title": {
+        "en": "Is there anything else we should know?",
+        "zh": "还有什么需要我们了解的吗？"
+      }
     }
   ],
   "submit": {
-    "title": "That’s everything.",
-    "body": "Swipe back to review, or send your answers to us now.",
-    "label": "Send"
+    "title": {
+      "en": "That’s everything.",
+      "zh": "全部完成了。"
+    },
+    "body": {
+      "en": "Swipe back to review, or send your answers to us now.",
+      "zh": "可以向右滑动检查回答，或现在提交给我们。"
+    },
+    "label": {
+      "en": "Send",
+      "zh": "提交"
+    }
   },
   "outro": {
-    "title": "Thank you.",
-    "body": "We have everything we need from {{customer}} for now, and will be in touch shortly."
+    "title": {
+      "en": "Thank you.",
+      "zh": "谢谢。"
+    },
+    "body": {
+      "en": "We have everything we need from {{customer}} for now, and will be in touch shortly.",
+      "zh": "我们已收到 {{customer}} 的全部信息，稍后会与您联系。"
+    }
   }
 }

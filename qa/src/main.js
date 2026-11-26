@@ -4,8 +4,11 @@ import "@fontsource/instrument-serif/latin-400.css";
 import "@fontsource-variable/geist/wght.css";
 import "./style.css";
 
+import { languagesOf } from "../shared/schema.js";
+import { words } from "../shared/words.js";
 import { mountDeck } from "./deck.js";
 import { h } from "./dom.js";
+import { applyLang, guessLang, initLang } from "./lang.js";
 import { HttpError, openSession } from "./session.js";
 import { initTheme } from "./theme.js";
 
@@ -45,19 +48,26 @@ const say = (title, body) => {
 };
 
 const start = async () => {
+  // Until a questionnaire says which languages it has, the browser's will do
+  const t = words(guessLang());
   const where = route();
-  if (!where) return say("Nothing here.", "Please use the link you were sent.");
+  if (!where) return say(t("nothing"), t("useLink"));
+  /** @type {import("./session.js").Session} */
+  let session;
   try {
-    const session = await openSession(where);
-    document.title = session.definition.title;
-    mountDeck({ stage, bar, foot }, session);
+    session = await openSession(where);
   } catch (e) {
-    if (e instanceof HttpError && e.status === 404) {
-      say("Nothing here.", "This link may have expired. Please check it, or ask for a new one.");
-    } else {
-      say("That didn’t load.", "Please check your connection and refresh the page.");
-    }
+    if (e instanceof HttpError && e.status === 404) return say(t("nothing"), t("expired"));
+    return say(t("loadFailed"), t("refresh"));
   }
+  applyLang(session.lang);
+  const deck = mountDeck({ stage, bar, foot }, session);
+  initLang(
+    /** @type {HTMLButtonElement} */ (document.getElementById("lang")),
+    languagesOf(session.definition),
+    session.lang,
+    deck.setLang,
+  );
 };
 
 start();
