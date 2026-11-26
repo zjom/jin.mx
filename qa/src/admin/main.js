@@ -13,6 +13,8 @@ import { h } from "../dom.js";
 import { initTheme } from "../theme.js";
 import { answersOf } from "./answers.js";
 import { api } from "./api.js";
+import { blank, isRecord } from "./draft.js";
+import { mountEditor } from "./editor.js";
 
 const app = /** @type {HTMLElement} */ (document.getElementById("app"));
 initTheme(/** @type {HTMLButtonElement} */ (document.getElementById("theme")));
@@ -97,7 +99,7 @@ const home = async () => {
       ),
     ),
     !questionnaires.length && h("p", { class: "body" }, "There are none yet."),
-    h("div", { class: "acts" }, link("Import a questionnaire", "#/import")),
+    h("div", { class: "acts" }, link("New questionnaire", "#/import")),
   ];
 };
 
@@ -141,7 +143,7 @@ const questionnaire = async (slug) => {
       { class: "acts" },
       !q.archived && link("New link", `${pathTo(slug)}/invite`),
       open && !q.archived && link("Open", `/${slug}`, { target: "_blank", rel: "noopener" }),
-      link("Update", `#/import/${encodeURIComponent(slug)}`),
+      link("Edit", `#/import/${encodeURIComponent(slug)}`),
       act("Download JSON", download),
       link("Export CSV", `/api/admin/submissions?questionnaire=${encodeURIComponent(slug)}&format=csv`),
       act(q.archived ? "Restore" : "Archive", archive, "quiet"),
@@ -279,7 +281,13 @@ const newLink = async (slug) => {
 
 // --- import -----------------------------------------------------------------
 
-/** @param {string} [slug] the questionnaire to update; a new one if left out */
+const MODE = "qa:admin:mode";
+
+// Says whether the page showing has changes that leaving would lose
+/** @type {(() => boolean) | null} */
+let unsaved = null;
+
+/** @param {string} [slug] the questionnaire to edit; a new one if left out */
 const importer = async (slug) => {
   const existing = slug ? await api("GET", `questionnaires/${encodeURIComponent(slug)}`) : null;
 
@@ -302,8 +310,79 @@ const importer = async (slug) => {
   });
   const result = h("div", { class: "result", role: "status" });
   const clear = () => result.replaceChildren();
+  /** @param {string[]} problems */
+  const refuse = (problems) => result.replaceChildren(h("ul", { class: "problems" }, problems.map((p) => h("li", {}, p))));
   name.addEventListener("input", clear);
   text.addEventListener("input", clear);
+
+  // The same questionnaire two ways: as a form, and as the JSON it is kept as
+  /** @type {"form" | "json"} */
+  let mode = "json";
+  /** @type {ReturnType<typeof mountEditor> | null} */
+  let editor = null;
+  // A new one that has not been touched is still nothing
+  let touched = Boolean(existing);
+  const formBox = h("div", { class: "formbox", hidden: true });
+  const jsonBox = h("div", { class: "lab" }, h("span", {}, "JSON"), text);
+  const asForm = h("button", { class: "tool", type: "button", onclick: () => show("form") }, "Form");
+  const asJson = h("button", { class: "tool", type: "button", onclick: () => show("json") }, "JSON");
+
+  const current = () => (mode === "form" && editor ? (touched ? JSON.stringify(editor.draft, null, 2) : "") : text.value);
+
+  /** @param {"form" | "json"} next @returns {boolean} false if the JSON cannot be shown as a form */
+  const show = (next) => {
+    if (next === "form" && mode !== "form") {
+      /** @type {any} */
+      let def;
+      try {
+        def = text.value.trim() ? JSON.parse(text.value) : blank();
+      } catch (e) {
+        refuse([`It is not valid JSON yet, so it cannot be shown as a form: ${/** @type {Error} */ (e).message}`]);
+        return false;
+      }
+      const odd = !isRecord(def)
+        ? "it must be an object"
+        : def.questions !== undefined && !(Array.isArray(def.questions) && def.questions.every(isRecord))
+          ? "questions must be a list of objects"
+          : null;
+      if (odd) {
+        refuse([`It cannot be shown as a form: ${odd}.`]);
+        return false;
+      }
+      touched ||= Boolean(text.value.trim());
+      def.questions ??= [];
+      editor = mountEditor(def, {
+        onChange: () => {
+          touched = true;
+          clear();
+        },
+      });
+      formBox.replaceChildren(editor.el);
+    } else if (next === "json" && mode === "form") text.value = current();
+    mode = next;
+    formBox.hidden = mode !== "form";
+    jsonBox.hidden = mode !== "json";
+    asForm.setAttribute("aria-pressed", String(mode === "form"));
+    asJson.setAttribute("aria-pressed", String(mode === "json"));
+    editor?.fit();
+    clear();
+    try {
+      localStorage.setItem(MODE, mode);
+    } catch {
+      // private mode: it opens as a form next time
+    }
+    return true;
+  };
+
+  let wanted = "form";
+  try {
+    wanted = localStorage.getItem(MODE) ?? "form";
+  } catch {
+    // as above
+  }
+  show(wanted === "json" ? "json" : "form");
+  const saved = current();
+  unsaved = () => current() !== saved;
 
   const file = h("input", {
     type: "file",
@@ -312,6 +391,8 @@ const importer = async (slug) => {
     onchange: async () => {
       const picked = file.files?.[0];
       if (!picked) return;
+      const was = mode;
+      mode = "json";
       text.value = await picked.text();
       if (!slug && !name.value) {
         name.value = picked.name
@@ -321,7 +402,12 @@ const importer = async (slug) => {
           .replace(/^-+|-+$/g, "");
       }
       file.value = "";
-      clear();
+      // A file that cannot be a form is still shown, as what it is
+      if (!show(was)) {
+        const why = [...result.childNodes];
+        show("json");
+        result.replaceChildren(...why);
+      }
     },
   });
 
@@ -329,17 +415,21 @@ const importer = async (slug) => {
   const send = async (dry) => {
     const to = name.value.trim();
     const named = slugProblem(to);
-    if (named) return result.replaceChildren(h("ul", { class: "problems" }, h("li", {}, named)));
-    if (!text.value.trim()) return result.replaceChildren(h("ul", { class: "problems" }, h("li", {}, "there is nothing to import")));
+    if (named) return refuse([named]);
+    const body = current();
+    if (!body.trim()) return refuse(["there is nothing to import"]);
     try {
-      const r = await api("PUT", `questionnaires/${encodeURIComponent(to)}${dry ? "?dry" : ""}`, text.value);
+      const r = await api("PUT", `questionnaires/${encodeURIComponent(to)}${dry ? "?dry" : ""}`, body);
       if (!r.ok) {
         return result.replaceChildren(
           h("p", { class: "note" }, `${r.errors.length} to fix before it can be saved:`),
           h("ul", { class: "problems" }, r.errors.map((/** @type {string} */ e) => h("li", {}, e))),
         );
       }
-      if (r.saved) return void (location.hash = pathTo(to));
+      if (r.saved) {
+        unsaved = null;
+        return void (location.hash = pathTo(to));
+      }
       if (r.unchanged) return result.replaceChildren(h("p", { class: "note" }, `Nothing to save: /${to} already says exactly this.`));
       result.replaceChildren(
         h(
@@ -352,24 +442,20 @@ const importer = async (slug) => {
       );
       result.scrollIntoView({ block: "nearest" });
     } catch (e) {
-      result.replaceChildren(h("ul", { class: "problems" }, h("li", {}, /** @type {Error} */ (e).message)));
+      refuse([/** @type {Error} */ (e).message]);
     }
   };
 
   return [
     existing ? crumb(pathTo(/** @type {string} */ (slug)), existing.title) : crumb("#/", "Questionnaires"),
-    h("h1", { class: "title" }, existing ? "Update it" : "Import a questionnaire"),
+    h("h1", { class: "title" }, existing ? "Edit it" : "A new questionnaire"),
     h(
       "div",
       { class: "form" },
       labelled("Name", name, existing ? undefined : "Also its address: qa.jin.mx/name."),
-      h(
-        "div",
-        { class: "lab" },
-        h("span", {}, "JSON"),
-        text,
-        h("label", { class: "pick" }, file, "Choose a file instead"),
-      ),
+      h("div", { class: "modes", role: "group", "aria-label": "Edit it as" }, asForm, asJson, h("label", { class: "tool pickfile" }, file, "Open a file")),
+      formBox,
+      jsonBox,
       h("button", { class: "send", type: "button", onclick: () => send(true) }, "Check it"),
       result,
     ),
@@ -405,8 +491,20 @@ const answers = async (kind, id) => {
 // --- which of them is showing ----------------------------------------------
 
 let turn = 0;
+// Where the page showing is, to stay there when leaving is turned down
+let here = location.hash;
 
 const render = async () => {
+  if (location.hash !== here && unsaved?.()) {
+    if (!confirm("Leave without saving? What was changed here will be lost.")) {
+      // Setting it back comes round here again, and finds nothing to do
+      location.hash = here;
+      return;
+    }
+  }
+  if (location.hash === here && unsaved?.()) return;
+  here = location.hash;
+  unsaved = null;
   const mine = ++turn;
   let parts;
   try {
@@ -441,4 +539,7 @@ const render = async () => {
 };
 
 addEventListener("hashchange", render);
+addEventListener("beforeunload", (e) => {
+  if (unsaved?.()) e.preventDefault();
+});
 render();

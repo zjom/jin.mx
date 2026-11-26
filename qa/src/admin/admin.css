@@ -293,3 +293,395 @@ ol.said-list {
   min-height: 2.25rem;
   font-size: inherit;
 }
+
+/* --- the form: a questionnaire read and changed where it is asked ---------- */
+
+[hidden] {
+  display: none !important;
+}
+
+/* A small word that does something: quieter than .act, and closer set */
+.tool {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  color: var(--mute);
+  font-size: 0.8125rem;
+  white-space: nowrap;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: color 0.2s ease;
+}
+
+.tool:hover,
+.tool:focus-visible,
+.tool:has(:focus-visible),
+.tool[aria-pressed="true"],
+.tool[aria-expanded="true"] {
+  color: var(--ink);
+  outline: none;
+}
+
+.tool:focus-visible,
+.tool:has(:focus-visible) {
+  text-decoration: underline;
+  text-underline-offset: 0.3rem;
+}
+
+.tool:disabled {
+  color: var(--line);
+  cursor: default;
+}
+
+select.tool {
+  field-sizing: content;
+  padding-right: 0.875rem;
+  background:
+    linear-gradient(45deg, transparent 50%, currentColor 50%) right 0.25rem center / 0.25rem 0.25rem no-repeat,
+    linear-gradient(-45deg, transparent 50%, currentColor 50%) right 0 center / 0.25rem 0.25rem no-repeat;
+}
+
+select.tool option {
+  color: var(--ink);
+  background: var(--bg);
+}
+
+@media (pointer: coarse) {
+  .tool {
+    min-width: 2rem;
+    min-height: 2.75rem;
+    justify-content: center;
+  }
+}
+
+.modes,
+.edbar {
+  display: flex;
+  gap: 1.25rem;
+  align-items: center;
+}
+
+.modes {
+  margin-top: 2.5rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.modes .tool,
+.edbar .tool {
+  min-height: 2.75rem;
+  font-size: 0.9375rem;
+}
+
+.modes .tool[aria-pressed="true"] {
+  box-shadow: 0 1px 0 var(--ink);
+}
+
+.modes .pickfile {
+  position: relative;
+  margin-left: auto;
+}
+
+/* Which language is showing stays in reach all the way down */
+.edbar {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg);
+}
+
+.edbar .tool + .tool::before {
+  content: "/";
+  margin-right: 1.25rem;
+  color: var(--line);
+}
+
+.formbox + .lab {
+  margin-top: 1.5rem;
+}
+
+/* Text of the questionnaire, written where it is read */
+.ed {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  resize: none;
+  field-sizing: content;
+  border-bottom: 1px solid transparent;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.ed::placeholder {
+  color: color-mix(in oklab, var(--ink) 28%, var(--bg));
+}
+
+@media (hover: hover) {
+  .ed:hover {
+    border-bottom-color: var(--line);
+  }
+}
+
+.ed:focus {
+  border-bottom-color: var(--ink);
+}
+
+.qtitle {
+  font: 500 1.5rem / 1.2 var(--sans);
+  letter-spacing: -0.02em;
+}
+
+.qtitle:lang(zh) {
+  line-height: 1.35;
+  letter-spacing: 0;
+}
+
+.qbody {
+  max-width: 32rem;
+  margin-top: 0.5rem;
+  color: var(--mute);
+  line-height: 1.55;
+}
+
+.edhead {
+  margin-top: 1.5rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.edhead .qtitle {
+  font-size: 1.875rem;
+}
+
+.q {
+  padding-block: 1.25rem 2rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.qmeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1rem;
+  align-items: center;
+  min-height: 2rem;
+  margin-bottom: 0.5rem;
+  color: var(--mute);
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.qmeta .cond {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.tools {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.qmeta .tools {
+  margin-left: auto;
+}
+
+.q .field {
+  margin-top: 1.5rem;
+}
+
+.q .field:empty {
+  display: none;
+}
+
+/* The control as it is asked: to look at, not to answer */
+.asked .line {
+  font-size: 1.125rem;
+}
+
+.q .problems,
+.edhead .problems {
+  margin-top: 1rem;
+  font-size: 0.875rem;
+}
+
+.problems:empty {
+  display: none;
+}
+
+/* Options, rows and columns: the list they will be, with each line open */
+.list + .list {
+  margin-top: 1.75rem;
+}
+
+.listname {
+  margin-bottom: 0.5rem;
+  color: var(--mute);
+  font-size: 0.8125rem;
+}
+
+.opt-ed {
+  padding-block: 0.5rem;
+  cursor: default;
+}
+
+.opt-ed .lbl,
+.opt-ed:hover .lbl {
+  transform: none;
+}
+
+.opt-ed .tools {
+  align-self: center;
+  margin-left: 1rem;
+  opacity: 0.45;
+  transition: opacity 0.2s ease;
+}
+
+.opt-ed:hover .tools,
+.opt-ed:focus-within .tools {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .opt-ed .tools {
+    opacity: 1;
+  }
+}
+
+/* What is kept as the answer, shown with the question's other settings */
+.val {
+  display: none;
+  width: 100%;
+  color: var(--mute);
+  font: 0.75rem / 1.5 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  outline: none;
+}
+
+.val:focus {
+  color: var(--ink);
+}
+
+.q.is-open .val {
+  display: block;
+}
+
+.under {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1.5rem;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.under.more {
+  margin-top: 0;
+  padding-block: 1rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.under.more .tool {
+  color: var(--ink);
+  font-size: 1rem;
+}
+
+.sendlabel {
+  width: auto;
+  min-width: 8rem;
+  font-size: 1.125rem;
+  border-bottom-color: var(--ink);
+}
+
+/* Settings: small labelled lines, as many across as fit */
+.settings {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: 1.25rem 1.5rem;
+  align-items: end;
+  margin-top: 1.5rem;
+}
+
+.q .settings {
+  padding-top: 1.25rem;
+  border-top: 1px dashed var(--line);
+}
+
+.set {
+  display: block;
+  min-width: 0;
+}
+
+.set.wide {
+  grid-column: 1 / -1;
+}
+
+.set.under {
+  display: flex;
+  margin-top: 0;
+}
+
+.set > span {
+  display: block;
+  color: var(--mute);
+  font-size: 0.75rem;
+}
+
+.set .line,
+.set textarea.line {
+  max-height: none;
+  padding: 0.25rem 0 0.4375rem;
+  border-bottom-color: var(--line);
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.set .line:focus {
+  border-bottom-color: var(--ink);
+}
+
+.set select.line {
+  padding-right: 1rem;
+  text-overflow: ellipsis;
+}
+
+.set .mono {
+  font: 0.875rem / 1.6 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+
+.checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1.25rem;
+}
+
+.check {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  color: var(--mute);
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.check span::before {
+  content: "";
+  display: inline-block;
+  width: 0.6875rem;
+  height: 0.6875rem;
+  margin-right: 0.5rem;
+  border: 1px solid var(--mute);
+  transition: background-color 0.2s ease;
+}
+
+.check :checked + span {
+  color: var(--ink);
+}
+
+.check :checked + span::before {
+  border-color: var(--ink);
+  background: var(--ink);
+}
+
+.check:has(:focus-visible) span {
+  text-decoration: underline;
+  text-underline-offset: 0.3rem;
+}

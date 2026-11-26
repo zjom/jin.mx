@@ -89,7 +89,7 @@ export const TYPES = [
   "file",
 ];
 
-const WITH_OPTIONS = ["choice", "multi", "select", "rank"];
+export const WITH_OPTIONS = ["choice", "multi", "select", "rank"];
 const MAX_TEXT = 500;
 const MAX_LONG = 10000;
 
@@ -364,7 +364,7 @@ export const languagesOf = (def) =>
   Array.isArray(def.languages) && def.languages.length ? def.languages : ["en"];
 
 // The parts of a question that are text for the reader
-const TEXTS = ["title", "body", "eyebrow", "placeholder", "yes", "no", "label", "prefix", "suffix"];
+export const TEXTS = ["title", "body", "eyebrow", "placeholder", "yes", "no", "label", "prefix", "suffix"];
 
 /**
  * The same questionnaire with every text in one language. Values, ids and

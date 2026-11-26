@@ -14,11 +14,15 @@ questionnaires, making customer links, and reading what was answered.
 
 `qa.jin.mx/admin` is behind Cloudflare Access, so it asks who you are first.
 
-- **Import a questionnaire** takes a JSON file, or JSON pasted in, and a name.
-  The name is its address: `discovery` is served at `qa.jin.mx/discovery`.
-  It is checked before it is saved, and what is wrong is listed. No deploy is
-  needed; it is live as soon as it is saved.
-- **Update** on a questionnaire does the same to one that exists. Every import
+- **New questionnaire** takes a name and the questionnaire itself, written
+  either way: as a **Form**, where every question is drawn as it is asked and
+  its wording, options and settings are changed in place, or as **JSON**,
+  pasted in or opened from a file. The two show the same thing, and either
+  can be switched to at any time. The name is its address: `discovery` is
+  served at `qa.jin.mx/discovery`. It is checked before it is saved, and what
+  is wrong is listed, in the form beside the question it is about. No deploy
+  is needed; it is live as soon as it is saved.
+- **Edit** on a questionnaire does the same to one that exists. Every save
   is kept as a revision, and each submission remembers the revision it
   answered, so old answers are always shown beside the questions as they were.
   Links still being filled in move to the new revision; the check warns when
