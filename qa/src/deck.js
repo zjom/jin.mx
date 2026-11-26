@@ -6,7 +6,8 @@
 // (a required question unanswered, nothing before the first card) still
 // follows the finger, against growing resistance, then springs back
 
-import { fill, problemWith, resolve } from "../shared/schema.js";
+import { fill, localize, problemWith, resolve } from "../shared/schema.js";
+import { words } from "../shared/words.js";
 import { h, paragraphs } from "./dom.js";
 import { renderField } from "./fields.js";
 
@@ -38,9 +39,14 @@ const clamp = (n) => Math.min(1, Math.max(0, n));
  * @param {HTMLElement} ui.bar
  * @param {HTMLElement} ui.foot
  * @param {Session} session
+ * @returns {{ setLang: (lang: string) => boolean }}
  */
 export const mountDeck = ({ stage, bar, foot }, session) => {
-  const def = session.definition;
+  let lang = session.lang;
+  let t = words(lang);
+  // The questionnaire as it reads in the current language
+  let def = localize(session.definition, lang);
+  document.title = def.title;
   const answers = { ...session.answers };
   const finePointer = matchMedia("(hover: hover) and (pointer: fine)").matches;
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
@@ -68,9 +74,9 @@ export const mountDeck = ({ stage, bar, foot }, session) => {
   };
 
   const paintFoot = () => {
-    if (!online) foot.textContent = "Offline — your answers will be saved when you’re back.";
+    if (!online) foot.textContent = t("offline");
     else if (hinted || done) foot.textContent = "";
-    else foot.textContent = finePointer ? "Press Enter ↵ or drag left to continue" : "Swipe left to continue";
+    else foot.textContent = t(finePointer ? "hintKeys" : "hintSwipe");
   };
 
   // --- cards ---------------------------------------------------------------
@@ -109,11 +115,11 @@ export const mountDeck = ({ stage, bar, foot }, session) => {
   const build = (slide) => {
     if (slide === SUBMIT) {
       const button = h("button", { class: "send", type: "button", onclick: () => submit(button) },
-        def.submit?.label ?? "Send");
+        def.submit?.label ?? t("send"));
       return frame(
         "",
-        fill(def.submit?.title, session.vars) || "That’s everything.",
-        fill(def.submit?.body, session.vars) || "Swipe back to review your answers, or send them now.",
+        fill(def.submit?.title, session.vars) || t("submitTitle"),
+        fill(def.submit?.body, session.vars) || t("submitBody"),
         button,
       );
     }
@@ -125,7 +131,7 @@ export const mountDeck = ({ stage, bar, foot }, session) => {
         ? fill(slide.eyebrow, session.vars)
         : slide.type === "statement"
           ? ""
-          : `${String(n).padStart(pad, "0")} / ${String(asked.length).padStart(pad, "0")}${slide.required ? "" : "  ·  Optional"}`;
+          : `${String(n).padStart(pad, "0")} / ${String(asked.length).padStart(pad, "0")}${slide.required ? "" : `  ·  ${t("optional")}`}`;
 
     const made = frame(eyebrow, fill(slide.title, session.vars), fill(slide.body, session.vars));
     const title = /** @type {HTMLElement} */ (made.el.querySelector(".title"));
@@ -142,7 +148,7 @@ export const mountDeck = ({ stage, bar, foot }, session) => {
         session.save(answers, current.id);
       },
       title.id,
-      session.upload,
+      { upload: session.upload, lang, t },
     );
     if (field) made.el.querySelector(".error")?.before(h("div", { class: "field" }, field));
     return made;
@@ -205,7 +211,7 @@ export const mountDeck = ({ stage, bar, foot }, session) => {
       // A control that is mid-task (a file still uploading) says so itself
       const waiting = card.el.querySelector("[data-busy]")?.getAttribute("data-busy");
       if (waiting) return { dir, refused: waiting };
-      const message = current === SUBMIT ? "" : (problemWith(current, answers[current.id]) ?? null);
+      const message = current === SUBMIT ? "" : (problemWith(current, answers[current.id], lang) ?? null);
       if (current === SUBMIT || message !== null) return { dir, refused: message ?? "" };
     } else if (index() === 0) return { dir, refused: "" };
 
@@ -291,7 +297,7 @@ export const mountDeck = ({ stage, bar, foot }, session) => {
     if (busy || done) return;
     busy = true;
     const label = button.textContent;
-    button.textContent = "Sending";
+    button.textContent = t("sending");
     button.disabled = true;
     card.fail("");
     try {
@@ -312,7 +318,7 @@ export const mountDeck = ({ stage, bar, foot }, session) => {
     } catch {
       button.textContent = label;
       button.disabled = false;
-      card.fail("That didn’t send. Please check your connection and try again.");
+      card.fail(t("sendFailed"));
     }
     busy = false;
   };
@@ -320,9 +326,40 @@ export const mountDeck = ({ stage, bar, foot }, session) => {
   const outro = () =>
     frame(
       "",
-      fill(def.outro?.title, session.vars) || "Thank you.",
-      fill(def.outro?.body, session.vars) || "Your answers have been received.",
+      fill(def.outro?.title, session.vars) || t("outroTitle"),
+      fill(def.outro?.body, session.vars) || t("outroBody"),
     );
+
+  // --- language ------------------------------------------------------------
+
+  /**
+   * Shows the same card in another language. Answers are values, not words,
+   * so nothing already given changes
+   * @param {string} next
+   * @returns {boolean} false if it has to wait: a card is moving, or a file is on its way
+   */
+  const setLang = (next) => {
+    if (busy || drag) return false;
+    const waiting = card.el.querySelector("[data-busy]")?.getAttribute("data-busy");
+    if (waiting) {
+      card.fail(waiting);
+      return false;
+    }
+    lang = next;
+    t = words(lang);
+    def = localize(session.definition, lang);
+    document.title = def.title;
+    session.setLang(lang);
+    recompute();
+    if (current !== SUBMIT) current = slides.find((s) => s.id === current.id) ?? slides[0];
+    const fresh = done ? outro() : build(current);
+    card.el.replaceWith(fresh.el);
+    card = fresh;
+    card.el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 300, easing: "ease-out" });
+    paintFoot();
+    if (!done) session.save(answers, current.id);
+    return true;
+  };
 
   /** @param {Card} next @returns {Move} a forward move onto a card outside the deck */
   const swapIn = (next) => {
@@ -496,4 +533,5 @@ export const mountDeck = ({ stage, bar, foot }, session) => {
   paintProgress();
   paintFoot();
   if (finePointer) focusCard();
+  return { setLang };
 };

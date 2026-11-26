@@ -28,6 +28,37 @@ address: `questionnaires/discovery.json` is served at `qa.jin.mx/discovery`.
 `"audience": "invite"` makes a questionnaire reachable only through customer
 links. Any questionnaire can be sent to a customer.
 
+## Languages
+
+A questionnaire is in English unless it says otherwise. With
+`"languages": ["en", "zh"]` it is in both (`zh` is Simplified Chinese), and
+every text is written once per language. `onboarding.json` is written this way.
+
+```json
+{
+  "title": { "en": "Getting started", "zh": "开始之前" },
+  "languages": ["en", "zh"],
+  "questions": [
+    {
+      "id": "cadence",
+      "type": "choice",
+      "title": { "en": "How often should we write?", "zh": "您希望我们多久联系一次？" },
+      "options": [{ "value": "weekly", "label": { "en": "Every week", "zh": "每周" } }]
+    }
+  ]
+}
+```
+
+- The reader gets a switch in the corner. The page opens in the first listed
+  language their browser asks for, or else in the first one listed.
+- Options and matrix rows need a `value` (or `id`) of their own, which is what
+  is stored and what `showIf` compares, so answers read the same whichever
+  language they were given in. Text the reader typed is stored as typed.
+- `pnpm check` fails if any text is missing a language. Only `prefix` and
+  `suffix` may stay plain strings.
+- What the site itself says ("This one is required.") is in `shared/words.js`.
+  A new language is added there, to `LANGS`, and then to each questionnaire.
+
 Every question has an `id`, a `type` and a `title`, and may have a `body`
 (a quieter line under the title), `required`, and `showIf`.
 
@@ -70,7 +101,11 @@ with any.
 ```sh
 pnpm invite onboarding "Acme & Sons"            # prints the link to send
 pnpm invite onboarding "Acme" contact=Ada       # also fills {{contact}}
+pnpm invite onboarding "华星科技" lang=zh        # the link opens in Chinese
 ```
+
+Without `lang`, a link opens in the customer's browser language. Either way
+the switch stays, and the link remembers the language last used.
 
 ## Reading answers
 
@@ -79,7 +114,8 @@ pnpm exec wrangler d1 execute qa --remote --json \
   --command "SELECT * FROM submissions WHERE questionnaire = 'onboarding'"
 ```
 
-`submissions` holds everything sent, from both kinds. Progress on customer
+`submissions` holds everything sent, from both kinds, with the language (`lang`)
+it was sent in. Progress on customer
 links that have not been sent yet is in `invites`.
 
 A `file` answer lists each file's `name`, `size` and `key`. The files

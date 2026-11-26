@@ -17,12 +17,17 @@
  * @property {Answers} answers
  * @property {string | null} position id of the question to resume at
  * @property {boolean} submitted
+ * @property {string} lang the language to open in
+ * @property {(lang: string) => void} setLang the reader changed it; kept with the next save
  * @property {(answers: Answers, position: string) => void} save
  * @property {() => void} flush send anything unsaved now; the page is going away
  * @property {(answers: Answers) => Promise<{ ok: true } | { ok: false, problem: Problem }>} submit
  * @property {(fn: (online: boolean) => void) => void} onStatus
  * @property {(questionId: string, file: File, onProgress: (done: number) => void) => Promise<import("../shared/schema.js").StoredFile>} upload
  */
+
+import { languagesOf } from "../shared/schema.js";
+import { guessLang } from "./lang.js";
 
 const SAVE_DELAY = 600;
 const MAX_RETRY = 30000;
@@ -98,16 +103,21 @@ const openGeneral = async (slug) => {
   const key = `qa:${slug}`;
   const { definition } = await api("GET", url);
   const saved = read(key);
+  let lang = guessLang(languagesOf(definition));
   return {
     definition,
     vars: {},
     answers: saved?.answers ?? {},
     position: saved?.position ?? null,
     submitted: false,
+    lang,
+    setLang: (next) => {
+      lang = next;
+    },
     save: (answers, position) => write(key, { answers, position }),
     flush: () => {},
     submit: async (answers) => {
-      const result = await api("POST", url, { answers });
+      const result = await api("POST", url, { answers, lang });
       if (result.ok) write(key);
       return result;
     },
@@ -124,12 +134,15 @@ const openInvite = async (token) => {
   const remote = await api("GET", url);
 
   // Unless the server has heard from another device since, it wins
-  /** @type {{ answers: Answers, position: string, at: number } | null} */
+  /** @type {{ answers: Answers, position: string, lang?: string, at: number } | null} */
   let pending = read(key);
   if (remote.submitted || !(pending && pending.at > Date.parse(remote.updatedAt))) {
     pending = null;
     write(key);
   }
+  // The link's own language, set when it was made or last used, comes first
+  const languages = languagesOf(remote.definition);
+  let lang = [pending?.lang, remote.lang].find((l) => languages.includes(l)) ?? guessLang(languages);
   let timer = 0;
   let sending = false;
   let failures = 0;
@@ -173,8 +186,12 @@ const openInvite = async (token) => {
     answers: pending?.answers ?? remote.answers,
     position: pending?.position ?? remote.position,
     submitted: remote.submitted,
+    lang,
+    setLang: (next) => {
+      lang = next;
+    },
     save: (answers, position) => {
-      pending = structuredClone({ answers, position, at: Date.now() });
+      pending = structuredClone({ answers, position, lang, at: Date.now() });
       write(key, pending);
       clearTimeout(timer);
       timer = window.setTimeout(push, SAVE_DELAY);
@@ -191,7 +208,7 @@ const openInvite = async (token) => {
     },
     submit: async (answers) => {
       clearTimeout(timer);
-      const result = await api("POST", url, { answers });
+      const result = await api("POST", url, { answers, lang });
       if (result.ok) {
         pending = null;
         write(key);

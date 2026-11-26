@@ -11,7 +11,8 @@ import { h } from "./dom.js";
  * @typedef {import("../shared/schema.js").Option} Option
  * @typedef {(value: unknown) => void} Setter
  * @typedef {import("./session.js").Session["upload"]} Upload
- * @typedef {(q: Question, value: any, set: Setter, labelId: string, upload: Upload) => HTMLElement | null} Field
+ * @typedef {{ upload: Upload, lang: string, t: import("../shared/words.js").Words }} Context what a control needs from the page
+ * @typedef {(q: Question, value: any, set: Setter, labelId: string, ctx: Context) => HTMLElement | null} Field
  */
 
 const LETTERS = "abcdefghijklmnopqrstuvwxyz";
@@ -85,10 +86,11 @@ const number = (q, value, set, labelId) =>
  * @param {any} o.value
  * @param {Setter} o.set
  * @param {string} o.labelId
+ * @param {Context} o.ctx
  * @param {boolean} [o.multi]
  * @param {string[]} [o.keys] shortcut key per option; letters by default
  */
-const list = ({ q, options, value, set, labelId, multi = false, keys }) => {
+const list = ({ q, options, value, set, labelId, ctx: { t }, multi = false, keys }) => {
   const type = multi ? "checkbox" : "radio";
   /** @type {any[]} */
   const picked = multi ? (Array.isArray(value) ? value : []) : [value];
@@ -149,14 +151,14 @@ const list = ({ q, options, value, set, labelId, multi = false, keys }) => {
   });
 
   if (q.other) {
-    const r = row("Other", options.length, picked.some((v) => otherOf(v) !== null));
+    const r = row(t("other"), options.length, picked.some((v) => otherOf(v) !== null));
     otherBox = r.input;
     otherInput = h("input", {
       class: "line other",
       type: "text",
       value: otherText,
-      placeholder: "Tell us more",
-      "aria-label": "Other",
+      placeholder: t("tellMore"),
+      "aria-label": t("other"),
       oninput: (/** @type {any} */ e) => {
         otherText = e.target.value;
         emit();
@@ -173,41 +175,43 @@ const list = ({ q, options, value, set, labelId, multi = false, keys }) => {
 };
 
 /** @type {Field} */
-const choice = (q, value, set, labelId) =>
-  list({ q, options: toOptions(q.options), value, set, labelId });
+const choice = (q, value, set, labelId, ctx) =>
+  list({ q, options: toOptions(q.options), value, set, labelId, ctx });
 
 /** @type {Field} */
-const multi = (q, value, set, labelId) =>
-  list({ q, options: toOptions(q.options), value, set, labelId, multi: true });
+const multi = (q, value, set, labelId, ctx) =>
+  list({ q, options: toOptions(q.options), value, set, labelId, ctx, multi: true });
 
 /** @type {Field} */
-const boolean = (q, value, set, labelId) =>
+const boolean = (q, value, set, labelId, ctx) =>
   list({
     q: { ...q, other: false },
     options: [
-      { value: true, label: q.yes ?? "Yes" },
-      { value: false, label: q.no ?? "No" },
+      { value: true, label: q.yes ?? ctx.t("yes") },
+      { value: false, label: q.no ?? ctx.t("no") },
     ],
     keys: ["y", "n"],
     value,
     set,
     labelId,
+    ctx,
   });
 
 /** @type {Field} */
-const consent = (q, value, set, labelId) =>
+const consent = (q, value, set, labelId, ctx) =>
   list({
     q: { ...q, other: false },
-    options: [{ value: true, label: q.label ?? "I agree" }],
+    options: [{ value: true, label: q.label ?? ctx.t("agree") }],
     keys: ["y"],
     multi: true,
     value: value === true ? [true] : [],
     set: (v) => set(/** @type {unknown[]} */ (v).length ? true : undefined),
     labelId,
+    ctx,
   });
 
 /** @type {Field} */
-const select = (q, value, set, labelId) => {
+const select = (q, value, set, labelId, { t }) => {
   const options = toOptions(q.options);
   const at = options.findIndex((o) => o.value === value);
   return h(
@@ -217,7 +221,7 @@ const select = (q, value, set, labelId) => {
       "aria-labelledby": labelId,
       onchange: (/** @type {any} */ e) => set(options[Number(e.target.value)]?.value),
     },
-    h("option", { value: "", selected: at < 0 }, q.placeholder ?? "Choose"),
+    h("option", { value: "", selected: at < 0 }, q.placeholder ?? t("choose")),
     options.map((o, i) => h("option", { value: String(i), selected: i === at }, o.label)),
   );
 };
@@ -376,7 +380,7 @@ const sizeOf = (bytes) =>
   bytes < 1024 * 1024 ? `${Math.max(1, Math.round(bytes / 1024))} KB` : `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 
 /** @type {Field} */
-const file = (q, value, set, labelId, upload) => {
+const file = (q, value, set, labelId, { upload, lang, t }) => {
   const { max, maxBytes, accept, open } = fileRules(q);
   /** @type {import("../shared/schema.js").StoredFile[]} */
   let stored = Array.isArray(value) ? [...value] : [];
@@ -392,15 +396,15 @@ const file = (q, value, set, labelId, upload) => {
     "aria-labelledby": labelId,
   });
   const pick = h("label", { class: "pick" }, input, h("span", {}));
-  const limits = `${open ? "" : `${accept.join(", ").toUpperCase()} · `}Up to ${maxBytes / 1024 / 1024} MB${max > 1 ? ` each · ${max} at most` : ""}`;
+  const limits = `${open ? "" : `${accept.join(", ").toUpperCase()} · `}${t(max > 1 ? "upToEach" : "upTo", { n: maxBytes / 1024 / 1024, max })}`;
   const wrap = h("div", { class: "files" }, list, pick, note);
 
   const paint = () => {
     const full = stored.length + sending >= max;
     pick.hidden = full;
-    /** @type {HTMLElement} */ (pick.lastChild).textContent = stored.length + sending ? "Add another" : max > 1 ? "Choose files" : "Choose a file";
+    /** @type {HTMLElement} */ (pick.lastChild).textContent = t(stored.length + sending ? "addAnother" : max > 1 ? "chooseFiles" : "chooseFile");
     // The deck will not move on while this is set
-    if (sending) wrap.dataset.busy = "Still uploading. One moment.";
+    if (sending) wrap.dataset.busy = t("uploading");
     else delete wrap.dataset.busy;
   };
 
@@ -411,7 +415,7 @@ const file = (q, value, set, labelId, upload) => {
       { class: "file" },
       h("span", { class: "fname" }, name),
       h("span", { class: "fsize" }, sizeOf(size)),
-      h("button", { class: "fremove", type: "button", "aria-label": `Remove ${name}`, onclick: onRemove }, "×"),
+      h("button", { class: "fremove", type: "button", "aria-label": t("remove", { name }), onclick: onRemove }, "×"),
     );
     list.append(el);
     return el;
@@ -434,10 +438,10 @@ const file = (q, value, set, labelId, upload) => {
     note.textContent = limits;
     for (const f of files) {
       if (stored.length + sending >= max) {
-        note.textContent = max > 1 ? `No more than ${max}, please.` : "Only one file here; remove it to choose another.";
+        note.textContent = max > 1 ? t("tooMany", { n: max }) : t("oneFile");
         break;
       }
-      const problem = fileProblem(q, f);
+      const problem = fileProblem(q, f, lang);
       if (problem) {
         note.textContent = problem;
         continue;
@@ -457,10 +461,10 @@ const file = (q, value, set, labelId, upload) => {
           el.remove();
           note.textContent =
             e?.status === 429
-              ? "Too many uploads just now. Please try again in a minute."
+              ? t("uploadsBusy")
               : e?.status === 413 || e?.status === 415
-                ? (fileProblem(q, f) ?? "That file can’t be added here.")
-                : "That didn’t upload. Please try again.";
+                ? (fileProblem(q, f, lang) ?? t("fileRefused"))
+                : t("uploadFailed");
         })
         .finally(() => {
           sending--;
@@ -523,8 +527,8 @@ const FIELDS = {
   rating: steps("rating"),
   scale: steps("scale"),
   slider,
-  date: (q, value, set, labelId) =>
-    line({ type: "date", min: q.earliest, max: q.latest })(q, value, set, labelId),
+  date: (q, value, set, labelId, ctx) =>
+    line({ type: "date", min: q.earliest, max: q.latest })(q, value, set, labelId, ctx),
   time: line({ type: "time" }),
   rank,
   matrix,
@@ -532,5 +536,5 @@ const FIELDS = {
 };
 
 /** @type {Field} */
-export const renderField = (q, value, set, labelId, upload) =>
-  FIELDS[q.type](q, value, set, labelId, upload);
+export const renderField = (q, value, set, labelId, ctx) =>
+  FIELDS[q.type](q, value, set, labelId, ctx);

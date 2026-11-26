@@ -4,6 +4,7 @@
 
 import { readdirSync, readFileSync } from "node:fs";
 import { lint } from "../shared/schema.js";
+import { LANGS, WORDS } from "../shared/words.js";
 
 const dir = new URL("../questionnaires/", import.meta.url);
 let failed = false;
@@ -20,6 +21,15 @@ for (const file of readdirSync(dir).filter((f) => f.endsWith(".json"))) {
   }
   for (const error of errors) console.error(`questionnaires/${file}: ${error}`);
   failed ||= errors.length > 0;
+}
+
+// The site's own phrases must exist in every language it offers
+for (const lang of LANGS) {
+  for (const key of Object.keys(WORDS.en)) {
+    if (WORDS[lang]?.[key]) continue;
+    console.error(`shared/words.js: "${key}" is missing in ${lang}`);
+    failed = true;
+  }
 }
 
 process.exit(failed ? 1 : 0);
