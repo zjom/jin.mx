@@ -178,12 +178,7 @@
       "body": "Drop files here, or choose them.",
       "max": 3,
       "maxSize": 10,
-      "accept": [
-        "pdf",
-        "png",
-        "jpg",
-        "jpeg"
-      ]
+      "accept": ["pdf", "png", "jpg", "jpeg", "docx", "pptx", "md", "csv", "xml", "html"]
     },
     {
       "id": "notes",

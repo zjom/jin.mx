@@ -109,7 +109,7 @@ export const rangeOf = (q) => {
 
 const MAX_FILE_MB = 25;
 const DEFAULT_ACCEPT =
-  "pdf png jpg jpeg gif webp heic svg txt csv md rtf doc docx xls xlsx ppt pptx key pages numbers zip".split(" ");
+  "pdf png jpg jpeg gif webp heic svg txt csv md xml html rtf doc docx xls xlsx ppt pptx key pages numbers zip".split(" ");
 
 /**
  * @param {Question} q a file question
