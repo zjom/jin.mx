@@ -91,13 +91,67 @@ select {
   transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* --- nav: only the theme toggle ------------------------------------------ */
+/* Chinese is set in the reader's own fonts, after ours for Latin and digits */
+:root:lang(zh) {
+  --serif: "Instrument Serif", "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", "SimSun", serif;
+  --sans: "Geist Variable", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", system-ui, sans-serif;
+}
+
+/* --- nav: the language switch and the theme toggle ----------------------- */
 
 nav {
   position: fixed;
   top: max(0.75rem, env(safe-area-inset-top));
   right: calc(var(--gutter) - 0.9rem);
   z-index: 2;
+  display: flex;
+  align-items: center;
+}
+
+/* Each language by its own name; the one not in use is quieter */
+.lang {
+  display: flex;
+  align-items: center;
+  height: 2.75rem;
+  padding-inline: 0.75rem;
+  color: var(--mute);
+  font-size: 0.8125rem;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+.lang[hidden] {
+  display: none;
+}
+
+.lang span + span::before {
+  content: "/";
+  margin-inline: 0.5em;
+  color: var(--line);
+}
+
+.lang span {
+  transition: color 0.2s ease;
+}
+
+.lang .is-on {
+  color: var(--ink);
+}
+
+/* Under a mouse, the switch shows where a press would take it */
+@media (hover: hover) {
+  .lang:hover span:not(.is-on) {
+    color: var(--ink);
+  }
+
+  .lang:hover .is-on {
+    color: var(--mute);
+  }
+}
+
+.lang:focus-visible {
+  outline: 1px solid var(--ink);
+  outline-offset: -0.6rem;
 }
 
 .theme {
@@ -190,6 +244,17 @@ nav {
   letter-spacing: -0.012em;
   text-wrap: balance;
   outline: none;
+}
+
+/* Han characters fill their box: they want less size and more air than Latin */
+:lang(zh) .title {
+  font-size: clamp(1.75rem, 1.3rem + 2.2vw, 2.75rem);
+  line-height: 1.3;
+  letter-spacing: 0;
+}
+
+:lang(zh) .body {
+  line-height: 1.75;
 }
 
 .body {
