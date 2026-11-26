@@ -1,3 +1,6 @@
+packages:
+  - qa
+
 allowBuilds:
   esbuild: true
   workerd: true
